@@ -5,7 +5,7 @@
 \title{Local average treatment effect estimation based on inverse probability weighting}
 \usage{
 lateweight(y, d, z, x, LATT = FALSE, trim = 0.05, logit = FALSE,
-  boot = 1999)
+  boot = 1999, cluster = NULL)
 }
 \arguments{
 \item{y}{Dependent variable, must not contain missings.}
@@ -24,6 +24,8 @@ If \code{LATT=TRUE}, observations with Pr(Z=1|X)>(1-\code{trim}) are dropped. De
 \item{logit}{If FALSE, probit regression is used for propensity score estimation. If TRUE, logit regression is used. Default is FALSE.}
 
 \item{boot}{Number of bootstrap replications for estimating standard errors. Default is 1999.}
+
+\item{cluster}{A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).}
 }
 \value{
 A lateweight object contains 10 components, \code{effect}, \code{se.effect}, \code{pval.effect}, \code{first}, \code{se.first}, \code{pval.first}, \code{ITT}, \code{se.ITT}, \code{pval.ITT}, and \code{ntrimmed}:

@@ -10,6 +10,7 @@
 #'  In the presence of post-treatment confounders (\code{w} is defined), observations with Pr(D=1|M,W,X)<\code{trim} or Pr(D=1|M,W,X)>(1-\code{trim}) are dropped. Default is 0.05.
 #' @param logit If FALSE, probit regression is used for propensity score estimation. If TRUE, logit regression is used. Default is FALSE.
 #' @param boot Number of bootstrap replications for estimating standard errors. Default is 1999.
+#' @param cluster A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).
 #' @details Estimation of causal mechanisms (natural direct and indirect effects) of a binary treatment under a selection on observables assumption assuming that all confounders of the treatment and the mediator, the treatment and the outcome, or the mediator and the outcome are observed. Units are weighted by the inverse of their conditional treatment propensities given the mediator and/or observed confounders, which are estimated by probit or logit regression.
 #' The form of weighting depends on whether the observed confounders are exclusively pre-treatment (\code{x}), or also contain post-treatment confounders of the mediator and the outcome (\code{w}). In the latter case, only partial indirect effects (from  \code{d} to \code{m} to \code{y}) can be estimated that exclude any causal paths from \code{d} to \code{w} to \code{m} to \code{y}, see the discussion in Huber (2014). Standard errors are obtained by bootstrapping the effects.
 #' @return A medweight object contains two components, \code{results} and \code{ntrimmed}:
@@ -33,11 +34,11 @@
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm
 #' @import mvtnorm
 #' @export
-medweight<-function(y,d,m,x, w=NULL, ATET=FALSE, trim=0.05, logit=FALSE, boot=1999){
+medweight<-function(y,d,m,x, w=NULL, ATET=FALSE, trim=0.05, logit=FALSE, boot=1999, cluster=NULL){
   temp=mediation(y=y,d=d,m=m,x=x,w=w,trim=trim, ATET=ATET, logit=logit)
   ntrimmed=temp[length(temp)]
   temp=temp[1:(length(temp)-1)]
-  temp2=bootstrap.mediation(y=y,d=d,m=m,x=x,w=w,boot=boot,trim=trim, ATET=ATET, logit=logit)
+  temp2=bootstrap.mediation(y=y,d=d,m=m,x=x,w=w,boot=boot,trim=trim, ATET=ATET, logit=logit, cluster=cluster)
   se=apply(temp2[,1:(ncol(temp2)-1)], 2, sd)
   temp3=2*pnorm(-abs(temp/se))
   results=rbind(temp, se, temp3)

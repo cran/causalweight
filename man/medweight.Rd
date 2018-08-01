@@ -5,7 +5,7 @@
 \title{Causal mediation analysis based on inverse probability weighting}
 \usage{
 medweight(y, d, m, x, w = NULL, ATET = FALSE, trim = 0.05,
-  logit = FALSE, boot = 1999)
+  logit = FALSE, boot = 1999, cluster = NULL)
 }
 \arguments{
 \item{y}{Dependent variable, must not contain missings.}
@@ -26,6 +26,8 @@ In the presence of post-treatment confounders (\code{w} is defined), observation
 \item{logit}{If FALSE, probit regression is used for propensity score estimation. If TRUE, logit regression is used. Default is FALSE.}
 
 \item{boot}{Number of bootstrap replications for estimating standard errors. Default is 1999.}
+
+\item{cluster}{A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).}
 }
 \value{
 A medweight object contains two components, \code{results} and \code{ntrimmed}:

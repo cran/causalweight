@@ -1,8 +1,8 @@
-### R code from vignette source 'causalweightDoc.Rnw'
+### R code from vignette source 'bodory-huber.Rnw'
 ### Encoding: ISO8859-1
 
 ###################################################
-### code chunk number 1: causalweightDoc.Rnw:272-280 (eval = FALSE)
+### code chunk number 1: bodory-huber.Rnw:273-281 (eval = FALSE)
 ###################################################
 ## n=10000
 ## set.seed(100); x=rnorm(n)
@@ -15,7 +15,7 @@
 
 
 ###################################################
-### code chunk number 2: causalweightDoc.Rnw:298-311 (eval = FALSE)
+### code chunk number 2: bodory-huber.Rnw:299-312 (eval = FALSE)
 ###################################################
 ## n=10000
 ## sigma=matrix(c(1,0.6,0.6,1),2,2)
@@ -33,7 +33,7 @@
 
 
 ###################################################
-### code chunk number 3: causalweightDoc.Rnw:483-493 (eval = FALSE)
+### code chunk number 3: bodory-huber.Rnw:484-494 (eval = FALSE)
 ###################################################
 ## n=10000
 ## set.seed(100); x=rnorm(n);
@@ -48,7 +48,7 @@
 
 
 ###################################################
-### code chunk number 4: causalweightDoc.Rnw:632-643 (eval = FALSE)
+### code chunk number 4: bodory-huber.Rnw:633-644 (eval = FALSE)
 ###################################################
 ## n=10000
 ## set.seed(100); u=rnorm(n)
@@ -64,7 +64,7 @@
 
 
 ###################################################
-### code chunk number 5: causalweightDoc.Rnw:799-811 (eval = FALSE)
+### code chunk number 5: bodory-huber.Rnw:800-812 (eval = FALSE)
 ###################################################
 ## n=3000
 ## sigma=matrix(c(1,0.5,0.5,0.5,1,0.5,0.5,0.5,1),3,3)

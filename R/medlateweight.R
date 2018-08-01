@@ -13,6 +13,7 @@
 #' @param bwreg Bandwidths for \code{zm} and \code{x} in the estimation of the conditional cumulative distribution function F(M|Z2,X) based on the np package by Hayfield and Racine (2008). The length of the numeric vector must correspond to the joint number of elements in \code{zm} and \code{x} and will be used both in the original sample for effect estimation and in bootstrap samples to compute standard errors. If set to \code{NULL}, then the rule of thumb is used for bandwidth calculation, see the np package for details. In the latter case, all elements in the regressors must be numeric. Default is \code{NULL}.
 #' @param bwm Bandwidth for \code{m} in the estimation of the conditional cumulative distribution function F(M|Z2,X) based on the np package by Hayfield and Racine (2008). Must be scalar and will be used both in the original sample for effect estimation and in bootstrap samples to compute standard errors. If set to \code{NULL}, then the rule of thumb is used for bandwidth calculation, see the np package for details. Default is \code{NULL}.
 #' @param logit If FALSE, probit regression is used for any propensity score estimation. If TRUE, logit regression is used. Default is FALSE.
+#' @param cluster A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).
 #' @details Estimation of causal mechanisms (natural direct and indirect effects) of a binary treatment among treatment compliers based on distinct instruments for the treatment and the mediator. The treatment and its instrument are assumed to be binary, while the mediator and its instrument are assumed to be continuous, see Theorem 1 in Frölich and Huber (2017). The instruments are assumed to be conditionally valid given a set of observed confounders. A control function is used to tackle mediator endogeneity. Standard errors are obtained by bootstrapping the effects.
 #' @return A medlateweight object contains two components, \code{results} and \code{ntrimmed}:
 #' @return \code{results}: a 3x7 matrix containing the effect estimates in the first row ("effects"), standard errors in the second row ("se"), and p-values in the third row ("p-value").
@@ -39,9 +40,9 @@
 #' @importFrom np npcdensbw npcdist
 #' @import mvtnorm
 #' @export
-medlateweight=function(y,d,m,zd, zm, x, trim=0.1,  csquared=FALSE, boot=1999, cminobs=40, bwreg=NULL, bwm=NULL, logit=FALSE){
+medlateweight=function(y,d,m,zd, zm, x, trim=0.1,  csquared=FALSE, boot=1999, cminobs=40, bwreg=NULL, bwm=NULL, logit=FALSE, cluster=NULL){
   temp<-effects.late.x(y=y,d=d,m=m,zd=zd, zm=zm, x=x, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
-  temp2<-bootstrap.mediation.late.x(y=y,d=d,m=m,zd=zd,zm=zm, x=x, boot=boot,trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
+  temp2<-bootstrap.mediation.late.x(y=y,d=d,m=m,zd=zd,zm=zm, x=x, boot=boot,trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit, cluster=cluster)
   ntrimmed=temp[length(temp)];
   temp=temp[1:(length(temp)-1)]
   se=apply(temp2[,1:(ncol(temp2)-1)], 2, sd)

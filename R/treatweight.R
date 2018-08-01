@@ -13,9 +13,10 @@
 #' If \code{ATET=TRUE}, observations with Pr(D=1|X)>(1-\code{trim}) are dropped. If \code{s} is defined and \code{z} is \code{NULL}, observations with extremely low selection propensity scores, Pr(S=1|D,X)<\code{trim}, are discarded, too. If \code{s} and \code{z} are defined, the treatment propensity scores to be trimmed change to Pr(D=1|X,Pr(S=1|D,X,Z)). If in addition \code{selpop} is \code{TRUE}, observation with Pr(S=1|D,X,Z)<\code{trim} are discarded, too. Default for \code{trim} is 0.05.
 #' @param logit If \code{FALSE}, probit regression is used for propensity score estimation. If \code{TRUE}, logit regression is used. Default is \code{FALSE}.
 #' @param boot Number of bootstrap replications for estimating standard errors. Default is 1999.
+#' @param cluster A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).
 #' @details Estimation of treatment effects of a binary treatment under a selection on observables assumption assuming that all confounders of the treatment and the outcome are observed. Units are weighted by the inverse of their conditional treatment propensities given the observed confounders, which are estimated by probit or logit regression. Standard errors are obtained by bootstrapping the effect.
 #' If \code{s} is defined, the procedure allows correcting for sample selectiondue to missing outcomes based on the inverse of the conditional selection probability. The latter might either be related to observables, which implies a missing at random assumption, or in addition also to unobservables, if an instrument for sample selection is available. See Huber (2012, 2014) for further details.
-#' @return A treatweight object contains six components, \code{effect}, \code{se}, \code{pval}, \code{y1}, \code{y0}, and \code{ntrimmed},:
+#' @return A treatweight object contains six components: \code{effect}, \code{se}, \code{pval}, \code{y1}, \code{y0}, and \code{ntrimmed}.
 #' @return \code{effect}: average treatment effect (ATE) if \code{ATET=FALSE} or the average treatment effect on the treated (ATET) if \code{ATET=TRUE}.
 #' @return \code{se}: bootstrap-based standard error of the effect.
 #' @return \code{pval}: p-value of the effect.
@@ -51,9 +52,9 @@
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm
 #' @import mvtnorm
 #' @export
-treatweight<-function(y,d,x, s=NULL, z=NULL, selpop=FALSE, ATET=FALSE, trim=0.05, logit=FALSE, boot=1999){
+treatweight<-function(y,d,x, s=NULL, z=NULL, selpop=FALSE, ATET=FALSE, trim=0.05, logit=FALSE, boot=1999, cluster=NULL){
   temp=ipw(y=y,d=d,x=x, s=s, z=z, selpop=selpop, trim=trim, ATET=ATET, logit=logit)
-  temp2=bootstrap.ipw(y=y,d=d,x=x,s=s, z=z, selpop=selpop, boot=boot,trim=trim, ATET=ATET, logit=logit)
+  temp2=bootstrap.ipw(y=y,d=d,x=x,s=s, z=z, selpop=selpop, boot=boot,trim=trim, ATET=ATET, logit=logit, cluster=cluster)
   se=sd(temp2[,1])
   list(effect=temp[1], se=se, pval=2*pnorm(-abs(temp[1]/se)), y1=temp[2], y0=temp[3], ntrimmed=temp[4])
 }

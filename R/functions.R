@@ -64,26 +64,52 @@ mediation<-function(y,d,m,x,w=NULL,trim=0.05, ATET=FALSE, logit=FALSE){
   results
 }
 
-bootstrap.mediation<-function(y,d,m,x,w=NULL,boot=1999,trim=0.05, ATET=FALSE, logit=FALSE){
-  obs<-length(y)
-  bsamples=matrix( ,boot,6)
-  for(i in 1:boot){
-    sboot<-sample(1:obs,obs,TRUE)
-    yb=y[sboot]
-    db<-d[sboot]
-    mb=m[sboot]
-    if (is.null(ncol(x))) xb<-x[sboot]
-    if (is.null(ncol(x))==0) xb<-x[sboot,]
-    if ( (is.null(w)==FALSE) & (length(w)==length(y))) wb=w[sboot]
-    if ( (is.null(w)==FALSE) & (length(w)!=length(y))) wb=w[sboot,]
-    if (is.null(w)==TRUE) wb=NULL
-    bsamples[i,]=c(mediation(y=yb,d=db,m=mb,x=xb,w=wb, trim=trim, ATET=ATET, logit=logit))
+bootstrap.mediation<-function(y,d,m,x,w=NULL,boot=1999,trim=0.05, ATET=FALSE, logit=FALSE, cluster=NULL){
+  if (is.null(cluster)){
+    obs<-length(y)
+    bsamples=matrix( ,boot,6)
+    for(i in 1:boot){
+      sboot<-sample(1:obs,obs,TRUE)
+      yb=y[sboot]
+      db<-d[sboot]
+      if (is.null(ncol(m))) mb<-m[sboot]
+      if (is.null(ncol(m))==0) mb<-m[sboot,]
+      if (is.null(ncol(x))) xb<-x[sboot]
+      if (is.null(ncol(x))==0) xb<-x[sboot,]
+      if ( (is.null(w)==FALSE) & (length(w)==length(y))) wb=w[sboot]
+      if ( (is.null(w)==FALSE) & (length(w)!=length(y))) wb=w[sboot,]
+      if (is.null(w)==TRUE) wb=NULL
+      bsamples[i,]=c(mediation(y=yb,d=db,m=mb,x=xb,w=wb, trim=trim, ATET=ATET, logit=logit))
+    }
+  }
+  if (is.null(cluster)==0){
+    temp<-sort(cluster); clusters<-min(cluster)
+    for (i in 1:length(temp)){
+      if (temp[i]>max(clusters)) clusters=c(clusters,temp[i])
+    }
+    key=cluster; bsamples=c(); temp=c()
+    obs<-length(clusters)
+    while(length(temp)<boot){
+      sboot<-sample(clusters,obs,TRUE)
+      db<-c(); yb<-c(); xb<-c() ; mb=c(); wb=c()
+      for (k in 1:length(sboot)) {
+        db<-c(db,d[key==sboot[k]]); yb<-c(yb,y[key==sboot[k]])
+        if (is.null(ncol(m))) mb<-c(mb,m[key==sboot[k]])
+        if (is.null(ncol(m))==0) mb=rbind(mb,m[key==sboot[k],])
+        if (is.null(ncol(x))) xb<-c(xb,x[key==sboot[k]])
+        if (is.null(ncol(x))==0) xb=rbind(xb,x[key==sboot[k],])
+        if ((is.null(w)==FALSE) & is.null(ncol(w))) wb<-c(wb,w[key==sboot[k]])
+        if ((is.null(w)==FALSE) & is.null(ncol(w))==0) wb=rbind(wb,w[key==sboot[k],])
+      }
+      if (is.null(w)==TRUE) wb=NULL
+      est=c(mediation(y=yb,d=db,m=mb,x=xb,w=wb, trim=trim, ATET=ATET, logit=logit))
+      bsamples<-rbind(bsamples, est)
+      temp<-c(temp,1)
+    }
   }
   bna=apply(bsamples, 1, sum)
   bsamples=bsamples[is.na(bna)==0,]
-  if (sum(is.na(bna))>0){
-    cat("Warning: ",sum(is.na(bna)>0)," bootstrap sample(s) dropped due to NA's")
-  }
+  if (sum(is.na(bna))>0) cat("Warning: ",sum(is.na(bna)>0)," bootstrap sample(s) dropped due to NA's")
   bsamples
 }
 
@@ -150,22 +176,49 @@ ipw<-function(y,d,x,s,z, selpop=FALSE, trim=0.05, ATET=FALSE, logit=FALSE){
   results
 }
 
-bootstrap.ipw<-function(y,d,x,s=NULL,z=NULL, selpop=FALSE, boot=1999,trim=0.05, ATET=FALSE, logit=FALSE){
-  obs<-length(y)
-  bsamples=matrix( ,boot,4)
-  for(i in 1:boot){
-    sboot<-sample(1:obs,obs,TRUE)
-    yb=y[sboot]; db<-d[sboot]
-    if (is.null(s)==0) sb=s[sboot]
-    if (is.null(s)) sb=NULL
-    if (is.null(ncol(x))) xb<-x[sboot]
-    if (is.null(ncol(x))==0) xb<-x[sboot,]
-    if (is.null(z)==0){
-      if (is.null(ncol(z))) zb<-z[sboot]
-      if (is.null(ncol(z))==0) zb<-z[sboot,]
+bootstrap.ipw<-function(y,d,x,s=NULL,z=NULL, selpop=FALSE, boot=1999,trim=0.05, ATET=FALSE, logit=FALSE, cluster=NULL){
+  if (is.null(cluster)){
+   obs<-length(y)
+    bsamples=matrix( ,boot,4)
+    for(i in 1:boot){
+      sboot<-sample(1:obs,obs,TRUE)
+      yb=y[sboot]; db<-d[sboot]
+      if (is.null(s)==0) sb=s[sboot]
+      if (is.null(s)) sb=NULL
+      if (is.null(ncol(x))) xb<-x[sboot]
+      if (is.null(ncol(x))==0) xb<-x[sboot,]
+      if (is.null(z)==0){
+        if (is.null(ncol(z))) zb<-z[sboot]
+        if (is.null(ncol(z))==0) zb<-z[sboot,]
+      }
+      if (is.null(z)) zb=NULL
+      bsamples[i,]=c(ipw(y=yb,d=db,x=xb, s=sb, z=zb, selpop=selpop, trim=trim, ATET=ATET, logit=logit))
     }
-    if (is.null(z)) zb=NULL
-    bsamples[i,]=c(ipw(y=yb,d=db,x=xb, s=sb, z=zb, selpop=selpop, trim=trim, ATET=ATET, logit=logit))
+  }
+  if (is.null(cluster)==0){
+    temp<-sort(cluster); clusters<-min(cluster)
+    for (i in 1:length(temp)){
+      if (temp[i]>max(clusters)) clusters=c(clusters,temp[i])
+    }
+    key=cluster; bsamples=c(); temp=c()
+    obs<-length(clusters)
+    while(length(temp)<boot){
+      sboot<-sample(clusters,obs,TRUE)
+      db<-c(); yb<-c(); xb<-c() ; sb=c(); zb=c()
+      for (k in 1:length(sboot)) {
+        db<-c(db,d[key==sboot[k]]); yb<-c(yb,y[key==sboot[k]])
+        if (is.null(s)==0) sb<-c(sb,s[key==sboot[k]])
+        if (is.null(ncol(x))) xb<-c(xb,x[key==sboot[k]])
+        if (is.null(ncol(x))==0) xb=rbind(xb,x[key==sboot[k],])
+        if ((is.null(z)==FALSE) & is.null(ncol(z))) zb<-c(zb,z[key==sboot[k]])
+        if ((is.null(z)==FALSE) & is.null(ncol(z))==0) zb=rbind(zb,z[key==sboot[k],])
+      }
+      if (is.null(s)) sb=NULL
+      if (is.null(z)) zb=NULL
+      est=c(ipw(y=yb,d=db,x=xb, s=sb, z=zb, selpop=selpop, trim=trim, ATET=ATET, logit=logit))
+      bsamples<-rbind(bsamples, est)
+      temp<-c(temp,1)
+    }
   }
   bna=apply(bsamples, 1, sum)
   bsamples=bsamples[is.na(bna)==0,]
@@ -197,15 +250,37 @@ late<-function(y,d,z, x,trim=0.05, LATT=FALSE, logit=FALSE){
 }
 
 
-bootstrap.late<-function(y,d,z,x,boot=1999,trim=0.05, LATT=FALSE, logit=FALSE){
-  obs<-length(y)
-  bsamples=matrix( ,boot,4)
-  for(i in 1:boot){
-    sboot=sample(1:obs,obs,TRUE)
-    yb=y[sboot]; db=d[sboot]; zb=z[sboot];
-    if (is.null(ncol(x))) xb<-x[sboot]
-    if (is.null(ncol(x))==0) xb<-x[sboot,]
-    bsamples[i,]=c(late(y=yb,d=db, z=zb, x=xb, trim=trim, LATT=LATT, logit=logit))
+bootstrap.late<-function(y,d,z,x,boot=1999,trim=0.05, LATT=FALSE, logit=FALSE, cluster=NULL){
+  if (is.null(cluster)){
+    obs<-length(y)
+    bsamples=matrix( ,boot,4)
+    for(i in 1:boot){
+      sboot=sample(1:obs,obs,TRUE)
+      yb=y[sboot]; db=d[sboot]; zb=z[sboot];
+      if (is.null(ncol(x))) xb<-x[sboot]
+      if (is.null(ncol(x))==0) xb<-x[sboot,]
+      bsamples[i,]=c(late(y=yb,d=db, z=zb, x=xb, trim=trim, LATT=LATT, logit=logit))
+    }
+  }
+  if (is.null(cluster)==0){
+    temp<-sort(cluster); clusters<-min(cluster)
+    for (i in 1:length(temp)){
+      if (temp[i]>max(clusters)) clusters=c(clusters,temp[i])
+    }
+    key=cluster; bsamples=c(); temp=c()
+    obs<-length(clusters)
+    while(length(temp)<boot){
+      sboot<-sample(clusters,obs,TRUE)
+      db<-c(); yb<-c(); xb<-c() ; zb=c()
+      for (k in 1:length(sboot)) {
+        db<-c(db,d[key==sboot[k]]); yb<-c(yb,y[key==sboot[k]]); zb<-c(zb,z[key==sboot[k]])
+        if (is.null(ncol(x))) xb<-c(xb,x[key==sboot[k]])
+        if (is.null(ncol(x))==0) xb=rbind(xb,x[key==sboot[k],])
+      }
+      est=c(late(y=yb,d=db, z=zb, x=xb, trim=trim, LATT=LATT, logit=logit))
+      bsamples<-rbind(bsamples, est)
+      temp<-c(temp,1)
+    }
   }
   bna=apply(bsamples, 1, sum)
   bsamples=bsamples[is.na(bna)==0,]
@@ -291,20 +366,43 @@ effects.late.x<-function(y,d,m,zd,  x, zm, trim=0.05, csquared=FALSE, bwreg=bwre
   results
 }
 
-bootstrap.mediation.late.x<-function(y,d,m,zd,zm,x, boot=1999,trim=0.05, csquared=FALSE, bwreg=bwreg, bwm= bwm, cminobs=40, logit=FALSE){
-  obs<-length(y)
-  bsamples=matrix( ,boot,8)
-  for(i in 1:boot){
-    sboot<-sample(1:obs,obs,TRUE)
-    yb=y[sboot]
-    db<-d[sboot]
-    zdb<-zd[sboot]
-    mb=m[sboot]
-    if (is.null(ncol(zm))) zmb<-zm[sboot]
-    if (is.null(ncol(zm))==0) zmb<-zm[sboot,]
-    if (is.null(ncol(x))) xb<-x[sboot]
-    if (is.null(ncol(x))==0) xb<-x[sboot,]
-    bsamples[i,]=effects.late.x(y=yb,d=db,m=mb,zd=zdb, zm=zmb, x=xb, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
+bootstrap.mediation.late.x<-function(y,d,m,zd,zm,x, boot=1999,trim=0.05, csquared=FALSE, bwreg=bwreg, bwm= bwm, cminobs=40, logit=FALSE, cluster=NULL){
+  if (is.null(cluster)){
+    obs<-length(y)
+    bsamples=matrix( ,boot,8)
+    for(i in 1:boot){
+      sboot<-sample(1:obs,obs,TRUE)
+      yb=y[sboot]; db<-d[sboot]; zdb<-zd[sboot]; mb=m[sboot]
+      if (is.null(ncol(zm))) zmb<-zm[sboot]
+      if (is.null(ncol(zm))==0) zmb<-zm[sboot,]
+      if (is.null(ncol(x))) xb<-x[sboot]
+      if (is.null(ncol(x))==0) xb<-x[sboot,]
+      bsamples[i,]=effects.late.x(y=yb,d=db,m=mb,zd=zdb, zm=zmb, x=xb, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
+    }
+  }
+
+  if (is.null(cluster)==0){
+    temp<-sort(cluster); clusters<-min(cluster)
+    for (i in 1:length(temp)){
+      if (temp[i]>max(clusters)) clusters=c(clusters,temp[i])
+    }
+    key=cluster; bsamples=c(); temp=c()
+    obs<-length(clusters)
+    while(length(temp)<boot){
+      sboot<-sample(clusters,obs,TRUE)
+      db<-c(); yb<-c(); xb<-c() ; zdb=c(); zmb=c(); mb=c()
+      for (k in 1:length(sboot)) {
+        db<-c(db,d[key==sboot[k]]); yb<-c(yb,y[key==sboot[k]]);
+        zdb<-c(zdb,zd[key==sboot[k]]); mb<-c(mb,m[key==sboot[k]])
+        if (is.null(ncol(x))) xb<-c(xb,x[key==sboot[k]])
+        if (is.null(ncol(x))==0) xb=rbind(xb,x[key==sboot[k],])
+        if (is.null(ncol(zm))) zmb<-c(zmb,zm[key==sboot[k]])
+        if (is.null(ncol(zm))==0) zmb=rbind(zmb,zm[key==sboot[k],])
+      }
+      est=effects.late.x(y=yb,d=db,m=mb,zd=zdb, zm=zmb, x=xb, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
+      bsamples<-rbind(bsamples, est)
+      temp<-c(temp,1)
+    }
   }
   bna=apply(bsamples, 1, sum)
   bsamples=bsamples[is.na(bna)==0,]
@@ -314,4 +412,86 @@ bootstrap.mediation.late.x<-function(y,d,m,zd,zm,x, boot=1999,trim=0.05, csquare
   bsamples
 }
 
+
+mediation.cont<-function(y,d,m,x, d0, d1, ATET=FALSE, trim=0.05, lognorm=FALSE, bw){
+  if(lognorm==TRUE){
+    dd=d;dd[d==0]=0.00001
+    ggg=glm(log(dd)~x)
+    if (d0==0) d0=0.00001; if (d1==0) d1=0.00001
+    pscore1d0=(dnorm( (log(d0)-cbind(1,x)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+    pscore1d1=(dnorm( (log(d1)-cbind(1,x)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+    ggg=glm(log(dd)~cbind(x,m))
+    pscore2d0=(dnorm( (log(d0)-cbind(1,x,m)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+    pscore2d1=(dnorm( (log(d1)-cbind(1,x,m)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+  }
+  if(lognorm==FALSE){
+    ggg=glm(d~x)
+    pscore1d0=(dnorm( (d0-cbind(1,x)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+    pscore1d1=(dnorm( (d1-cbind(1,x)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+    ggg=glm(d~cbind(x,m))
+    pscore2d0=(dnorm( (d0-cbind(1,x,m)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+    pscore2d1=(dnorm( (d1-cbind(1,x,m)%*%ggg$coefficients)/sqrt(mean(ggg$residuals^2))))
+  }
+  kernwgtd0=npksum(bws=bw, txdat = d, tydat = y, exdat = d0, return.kernel.weights=TRUE, ckertype="epanechnikov", ckerorder=2)$kw
+  kernwgtd1=npksum(bws=bw, txdat = d, tydat = y, exdat = d1, return.kernel.weights=TRUE, ckertype="epanechnikov", ckerorder=2)$kw
+  ind=((pscore2d0>=trim) & (pscore2d1>=trim) )
+  y=y[ind];  pscore1d0=pscore1d0[ind];pscore1d1=pscore1d1[ind];pscore2d0=pscore2d0[ind]; pscore2d1=pscore2d1[ind];
+  kernwgtd0=kernwgtd0[ind]; kernwgtd1= kernwgtd1[ind]
+  if (ATET==FALSE){
+    yd1m1=sum(y*kernwgtd1/pscore1d1)/sum(kernwgtd1/pscore1d1)
+    yd1m0=sum(y*kernwgtd1*pscore2d0/(pscore2d1*pscore1d0))/sum(kernwgtd1*pscore2d0/(pscore2d1*pscore1d0))
+    yd0m0=sum(y*kernwgtd0/pscore1d0)/sum(kernwgtd0/pscore1d0)
+    yd0m1=sum(y*kernwgtd0*pscore2d1/(pscore2d0*pscore1d1))/sum(kernwgtd0*pscore2d1/(pscore2d0*pscore1d1))
+  }
+  if (ATET==TRUE){
+    yd1m1=sum(y*kernwgtd1)/sum(kernwgtd1)
+    yd1m0=sum(y*kernwgtd1*pscore2d0*pscore1d1/(pscore2d1*pscore1d0))/sum(kernwgtd1*pscore2d0*pscore1d1/(pscore2d1*pscore1d0))
+    yd0m0=sum(y*kernwgtd0*pscore1d1/pscore1d0)/sum(kernwgtd0*pscore1d1/pscore1d0)
+    yd0m1=sum(y*kernwgtd0*pscore2d1/pscore2d0)/sum(kernwgtd0*pscore2d1/pscore2d0)
+  }
+  results=c(yd1m1-yd0m0, yd1m1 - yd0m1, yd1m0-yd0m0, yd1m1 - yd1m0, yd0m1 - yd0m0, sum(1-ind))
+}
+
+bootstrap.mediation.cont<-function(y,d,m,x,d0,d1,ATET=FALSE, trim=0.05, lognorm=FALSE, bw, boot=1999, cluster=NULL){
+  if (is.null(cluster)){
+    obs<-length(y)
+    bsamples=matrix( ,boot,6)
+    for(i in 1:boot){
+      sboot<-sample(1:obs,obs,TRUE)
+      yb=y[sboot]
+      db<-d[sboot]
+      if (is.null(ncol(m))) mb<-m[sboot]
+      if (is.null(ncol(m))==0) mb<-m[sboot,]
+      if (is.null(ncol(x))) xb<-x[sboot]
+      if (is.null(ncol(x))==0) xb<-x[sboot,]
+      bsamples[i,]=c(mediation.cont(y=yb,d=db,m=mb,x=xb, d0=d0, d1=d1,  ATET=ATET, trim=trim, lognorm=lognorm, bw=bw))
+    }
+  }
+  if (is.null(cluster)==0){
+    temp<-sort(cluster); clusters<-min(cluster)
+    for (i in 1:length(temp)){
+      if (temp[i]>max(clusters)) clusters=c(clusters,temp[i])
+    }
+    key=cluster; bsamples=c(); temp=c()
+    obs<-length(clusters)
+    while(length(temp)<boot){
+      sboot<-sample(clusters,obs,TRUE)
+      db<-c(); yb<-c(); xb<-c() ; mb=c()
+      for (k in 1:length(sboot)) {
+        db<-c(db,d[key==sboot[k]]); yb<-c(yb,y[key==sboot[k]])
+        if (is.null(ncol(m))) mb<-c(mb,m[key==sboot[k]])
+        if (is.null(ncol(m))==0) mb=rbind(mb,m[key==sboot[k],])
+        if (is.null(ncol(x))) xb<-c(xb,x[key==sboot[k]])
+        if (is.null(ncol(x))==0) xb=rbind(xb,x[key==sboot[k],])
+      }
+      est=c(mediation.cont(y=yb,d=db,m=mb,x=xb, d0=d0, d1=d1,  ATET=ATET, trim=trim, lognorm=lognorm, bw=bw))
+      bsamples<-rbind(bsamples, est)
+      temp<-c(temp,1)
+    }
+  }
+  bna=apply(bsamples, 1, sum)
+  bsamples=bsamples[is.na(bna)==0,]
+  if (sum(is.na(bna))>0) cat("Warning: ",sum(is.na(bna)>0)," bootstrap sample(s) dropped due to NA's")
+  bsamples
+}
 

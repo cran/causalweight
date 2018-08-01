@@ -4,8 +4,9 @@
 \alias{treatweight}
 \title{Treatment evaluation based on inverse probability weighting with optional sample selection correction.}
 \usage{
-treatweight(y, d, x, s = NULL, z = NULL, selpop = FALSE, ATET = FALSE,
-  trim = 0.05, logit = FALSE, boot = 1999)
+treatweight(y, d, x, s = NULL, z = NULL, selpop = FALSE,
+  ATET = FALSE, trim = 0.05, logit = FALSE, boot = 1999,
+  cluster = NULL)
 }
 \arguments{
 \item{y}{Dependent variable.}
@@ -30,9 +31,11 @@ If \code{ATET=TRUE}, observations with Pr(D=1|X)>(1-\code{trim}) are dropped. If
 \item{logit}{If \code{FALSE}, probit regression is used for propensity score estimation. If \code{TRUE}, logit regression is used. Default is \code{FALSE}.}
 
 \item{boot}{Number of bootstrap replications for estimating standard errors. Default is 1999.}
+
+\item{cluster}{A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).}
 }
 \value{
-A treatweight object contains six components, \code{effect}, \code{se}, \code{pval}, \code{y1}, \code{y0}, and \code{ntrimmed},:
+A treatweight object contains six components: \code{effect}, \code{se}, \code{pval}, \code{y1}, \code{y0}, and \code{ntrimmed}.
 
 \code{effect}: average treatment effect (ATE) if \code{ATET=FALSE} or the average treatment effect on the treated (ATET) if \code{ATET=TRUE}.
 

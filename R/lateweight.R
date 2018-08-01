@@ -7,6 +7,7 @@
 #' @param LATT If FALSE, the local average treatment effect (LATE) among compliers (whose treatment reacts to the instrument) is estimated. If TRUE, the local average treatment effect on the treated compliers (LATT)  is estimated. Default is FALSE.
 #' @param trim Trimming rule for discarding observations with extreme propensity scores. If \code{LATT=FALSE}, observations with Pr(Z=1|X)<\code{trim} or Pr(Z=1|X)>(1-\code{trim}) are dropped.
 #' If \code{LATT=TRUE}, observations with Pr(Z=1|X)>(1-\code{trim}) are dropped. Default is 0.05.
+#' @param cluster A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).
 #' @param logit If FALSE, probit regression is used for propensity score estimation. If TRUE, logit regression is used. Default is FALSE.
 #' @param boot Number of bootstrap replications for estimating standard errors. Default is 1999.
 #' @details Estimation of local average treatment effects of a binary endogenous treatment based on a binary instrument that is conditionally valid, implying that all confounders of the instrument and the outcome are observed. Units are weighted by the inverse of their conditional instrument propensities given the observed confounders, which are estimated by probit or logit regression. Standard errors are obtained by bootstrapping the effect.
@@ -38,11 +39,11 @@
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm
 #' @import mvtnorm
 #' @export
-lateweight<-function(y,d,z,x, LATT=FALSE, trim=0.05, logit=FALSE, boot=1999){
+lateweight<-function(y,d,z,x, LATT=FALSE, trim=0.05, logit=FALSE, boot=1999, cluster=NULL){
   temp=late(y=y,d=d,z=z, x=x,trim=trim, LATT=LATT, logit=logit)
   ntrimmed=temp[length(temp)]
   temp=temp[1:(length(temp)-1)]
-  temp2=bootstrap.late(y=y,d=d,z=z, x=x,boot=boot,trim=trim, LATT=LATT, logit=logit)
+  temp2=bootstrap.late(y=y,d=d,z=z, x=x,boot=boot,trim=trim, LATT=LATT, logit=logit, cluster=cluster)
   se=apply(temp2[,1:(ncol(temp2)-1)], 2, sd)
   temp3=2*pnorm(-abs(temp/se))
   list(effect=temp[1], se.effect=se[1], pval.effect=temp3[1],  first=temp[2], se.first=se[2], pval.first=temp3[2], ITT=temp[3], se.ITT=se[3], pval.ITT=temp3[3], ntrimmed=ntrimmed)

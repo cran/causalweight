@@ -5,7 +5,8 @@
 \title{Causal mediation analysis with instruments for treatment and mediator based on weighting}
 \usage{
 medlateweight(y, d, m, zd, zm, x, trim = 0.1, csquared = FALSE,
-  boot = 1999, cminobs = 40, bwreg = NULL, bwm = NULL, logit = FALSE)
+  boot = 1999, cminobs = 40, bwreg = NULL, bwm = NULL,
+  logit = FALSE, cluster = NULL)
 }
 \arguments{
 \item{y}{Dependent variable, must not contain missings.}
@@ -33,6 +34,8 @@ medlateweight(y, d, m, zd, zm, x, trim = 0.1, csquared = FALSE,
 \item{bwm}{Bandwidth for \code{m} in the estimation of the conditional cumulative distribution function F(M|Z2,X) based on the np package by Hayfield and Racine (2008). Must be scalar and will be used both in the original sample for effect estimation and in bootstrap samples to compute standard errors. If set to \code{NULL}, then the rule of thumb is used for bandwidth calculation, see the np package for details. Default is \code{NULL}.}
 
 \item{logit}{If FALSE, probit regression is used for any propensity score estimation. If TRUE, logit regression is used. Default is FALSE.}
+
+\item{cluster}{A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).}
 }
 \value{
 A medlateweight object contains two components, \code{results} and \code{ntrimmed}:
