@@ -36,7 +36,7 @@
 #'              round(c(output$se.effect),3), ", p-value: ",
 #'              round(c(output$pval.effect),3))
 #' output$ntrimmed
-#' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm
+#' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm quantile
 #' @import mvtnorm
 #' @export
 lateweight<-function(y,d,z,x, LATT=FALSE, trim=0.05, logit=FALSE, boot=1999, cluster=NULL){

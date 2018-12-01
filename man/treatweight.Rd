@@ -20,13 +20,13 @@ treatweight(y, d, x, s = NULL, z = NULL, selpop = FALSE,
 \item{z}{Optional instrumental variable(s) for selection \code{s}. If \code{NULL}, outcome selection based on observables (\code{x},\code{d}) - known as "missing at random" - is assumed.
 If \code{z} is defined, outcome selection based on unobservables - known as "non-ignorable missingness" - is assumed. Default is \code{NULL}. If \code{s} is \code{NULL}, \code{z} is ignored.}
 
-\item{selpop}{Only to be used if both \code{s} and \code{z} are defined. If \code{TRUE}, the effect is estimated for the selected subpopulation with \code{s}=1 only. If \code{FALSE}, the effect is estimated for the total population
+\item{selpop}{Only to be used if both \code{s} and \code{z} are defined. If \code{TRUE}, the effect is estimated for the selected subpopulation with \code{s}=1 only. If \code{FALSE}, the effect is estimated for the total population.
 (note that this relies on somewhat stronger statistical assumptions). Default is \code{FALSE}. If \code{s} or  \code{z} is \code{NULL}, \code{selpop} is ignored.}
 
 \item{ATET}{If \code{FALSE}, the average treatment effect (ATE) is estimated. If \code{TRUE}, the average treatment effect on the treated (ATET)  is estimated. Default is \code{FALSE}.}
 
 \item{trim}{Trimming rule for discarding observations with extreme propensity scores. If \code{ATET=FALSE}, observations with Pr(D=1|X)<\code{trim} or Pr(D=1|X)>(1-\code{trim}) are dropped.
-If \code{ATET=TRUE}, observations with Pr(D=1|X)>(1-\code{trim}) are dropped. If \code{s} is defined and \code{z} is \code{NULL}, observations with extremely low selection propensity scores, Pr(S=1|D,X)<\code{trim}, are discarded, too. If \code{s} and \code{z} are defined, the treatment propensity scores to be trimmed change to Pr(D=1|X,Pr(S=1|D,X,Z)). If in addition \code{selpop} is \code{TRUE}, observation with Pr(S=1|D,X,Z)<\code{trim} are discarded, too. Default for \code{trim} is 0.05.}
+If \code{ATET=TRUE}, observations with Pr(D=1|X)>(1-\code{trim}) are dropped. If \code{s} is defined and \code{z} is \code{NULL}, observations with extremely low selection propensity scores, Pr(S=1|D,X)<\code{trim}, are discarded, too. If \code{s} and \code{z} are defined, the treatment propensity scores to be trimmed change to Pr(D=1|X,Pr(S=1|D,X,Z)). If in addition \code{selpop} is \code{FALSE}, observation with Pr(S=1|D,X,Z)<\code{trim} are discarded, too. Default for \code{trim} is 0.05.}
 
 \item{logit}{If \code{FALSE}, probit regression is used for propensity score estimation. If \code{TRUE}, logit regression is used. Default is \code{FALSE}.}
 

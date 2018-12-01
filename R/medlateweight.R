@@ -36,7 +36,7 @@
 #' # The true direct and indirect effects on compliers are equal to 1 and 0.5, respectively
 #' medlateweight(y,d,m,zd,zm,x,trim=0.1,csquared=FALSE,boot=19,cminobs=40,
 #'               bwreg=NULL,bwm=NULL,logit=FALSE)}
-#' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm
+#' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm quantile
 #' @importFrom np npcdensbw npcdist
 #' @import mvtnorm
 #' @export

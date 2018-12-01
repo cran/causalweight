@@ -6,11 +6,11 @@
 #' @param s Selection indicator. Must be one if \code{y} is observed (non-missing) and zero if \code{y} is not observed (missing). Default is \code{NULL}, implying that \code{y} does not contain any missings.
 #' @param z Optional instrumental variable(s) for selection \code{s}. If \code{NULL}, outcome selection based on observables (\code{x},\code{d}) - known as "missing at random" - is assumed.
 #' If \code{z} is defined, outcome selection based on unobservables - known as "non-ignorable missingness" - is assumed. Default is \code{NULL}. If \code{s} is \code{NULL}, \code{z} is ignored.
-#' @param selpop Only to be used if both \code{s} and \code{z} are defined. If \code{TRUE}, the effect is estimated for the selected subpopulation with \code{s}=1 only. If \code{FALSE}, the effect is estimated for the total population
+#' @param selpop Only to be used if both \code{s} and \code{z} are defined. If \code{TRUE}, the effect is estimated for the selected subpopulation with \code{s}=1 only. If \code{FALSE}, the effect is estimated for the total population.
 #' (note that this relies on somewhat stronger statistical assumptions). Default is \code{FALSE}. If \code{s} or  \code{z} is \code{NULL}, \code{selpop} is ignored.
 #' @param ATET If \code{FALSE}, the average treatment effect (ATE) is estimated. If \code{TRUE}, the average treatment effect on the treated (ATET)  is estimated. Default is \code{FALSE}.
 #' @param trim Trimming rule for discarding observations with extreme propensity scores. If \code{ATET=FALSE}, observations with Pr(D=1|X)<\code{trim} or Pr(D=1|X)>(1-\code{trim}) are dropped.
-#' If \code{ATET=TRUE}, observations with Pr(D=1|X)>(1-\code{trim}) are dropped. If \code{s} is defined and \code{z} is \code{NULL}, observations with extremely low selection propensity scores, Pr(S=1|D,X)<\code{trim}, are discarded, too. If \code{s} and \code{z} are defined, the treatment propensity scores to be trimmed change to Pr(D=1|X,Pr(S=1|D,X,Z)). If in addition \code{selpop} is \code{TRUE}, observation with Pr(S=1|D,X,Z)<\code{trim} are discarded, too. Default for \code{trim} is 0.05.
+#' If \code{ATET=TRUE}, observations with Pr(D=1|X)>(1-\code{trim}) are dropped. If \code{s} is defined and \code{z} is \code{NULL}, observations with extremely low selection propensity scores, Pr(S=1|D,X)<\code{trim}, are discarded, too. If \code{s} and \code{z} are defined, the treatment propensity scores to be trimmed change to Pr(D=1|X,Pr(S=1|D,X,Z)). If in addition \code{selpop} is \code{FALSE}, observation with Pr(S=1|D,X,Z)<\code{trim} are discarded, too. Default for \code{trim} is 0.05.
 #' @param logit If \code{FALSE}, probit regression is used for propensity score estimation. If \code{TRUE}, logit regression is used. Default is \code{FALSE}.
 #' @param boot Number of bootstrap replications for estimating standard errors. Default is 1999.
 #' @param cluster A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is NULL (standard bootstrap without clustering).
@@ -49,10 +49,11 @@
 #' cat("ATE: ",round(c(output$effect),3),", standard error: ",
 #'     round(c(output$se),3), ", p-value: ",round(c(output$pval),3))
 #' output$ntrimmed
-#' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm
+#' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm quantile
 #' @import mvtnorm
 #' @export
 treatweight<-function(y,d,x, s=NULL, z=NULL, selpop=FALSE, ATET=FALSE, trim=0.05, logit=FALSE, boot=1999, cluster=NULL){
+  if (is.null(s)==FALSE) y[s==0]=0
   temp=ipw(y=y,d=d,x=x, s=s, z=z, selpop=selpop, trim=trim, ATET=ATET, logit=logit)
   temp2=bootstrap.ipw(y=y,d=d,x=x,s=s, z=z, selpop=selpop, boot=boot,trim=trim, ATET=ATET, logit=logit, cluster=cluster)
   se=sd(temp2[,1])
