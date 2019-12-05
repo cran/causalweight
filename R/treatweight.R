@@ -24,7 +24,7 @@
 #' @return \code{y0}: mean potential outcome under control.
 #' @return \code{ntrimmed}: number of discarded (trimmed) observations due to extreme propensity score values.
 #' @references Horvitz, D. G., and Thompson, D. J. (1952): "A generalization of sampling without replacement from a finite universe", Journal of the American Statistical Association, 47, 663–685.
-#' @references Huber, M. (2012): "Identification of average treatment effects in social experiments under alternative forms of attrition", Journal of Educational and Behavioral Statistics, 37 , 443-474.
+#' @references Huber, M. (2012): "Identification of average treatment effects in social experiments under alternative forms of attrition", Journal of Educational and Behavioral Statistics, 37, 443-474.
 #' @references Huber, M. (2014): "Treatment evaluation in the presence of sample selection", Econometric Reviews, 33, 869-905.
 #' @examples # A little example with simulated data (10000 observations)
 #' n=10000

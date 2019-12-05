@@ -4,8 +4,17 @@
 \alias{lateweight}
 \title{Local average treatment effect estimation based on inverse probability weighting}
 \usage{
-lateweight(y, d, z, x, LATT = FALSE, trim = 0.05, logit = FALSE,
-  boot = 1999, cluster = NULL)
+lateweight(
+  y,
+  d,
+  z,
+  x,
+  LATT = FALSE,
+  trim = 0.05,
+  logit = FALSE,
+  boot = 1999,
+  cluster = NULL
+)
 }
 \arguments{
 \item{y}{Dependent variable, must not contain missings.}

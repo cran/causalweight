@@ -4,8 +4,20 @@
 \alias{medweightcont}
 \title{Causal mediation analysis with a continuous treatment based on weighting by the inverse of generalized propensity scores}
 \usage{
-medweightcont(y, d, m, x, d0, d1, ATET = FALSE, trim = 0.05,
-  lognorm = FALSE, bw = NULL, boot = 1999, cluster = NULL)
+medweightcont(
+  y,
+  d,
+  m,
+  x,
+  d0,
+  d1,
+  ATET = FALSE,
+  trim = 0.1,
+  lognorm = FALSE,
+  bw = NULL,
+  boot = 1999,
+  cluster = NULL
+)
 }
 \arguments{
 \item{y}{Dependent variable, must not contain missings.}
@@ -20,13 +32,13 @@ medweightcont(y, d, m, x, d0, d1, ATET = FALSE, trim = 0.05,
 
 \item{d1}{Value of \code{d} under treatment. Effects are based on pairwise comparisons, i.e. differences in potential outcomes evaluated at \code{d1} and \code{d0}.}
 
-\item{ATET}{If FALSE, the average treatment effect (ATE) and the corresponding direct and indirect effects are estimated. If TRUE, the average treatment effect on the treated (ATET)  and the corresponding direct and indirect effects are estimated. Default is FALSE.}
+\item{ATET}{If FALSE, the average treatment effect (ATE) and the corresponding direct and indirect effects are estimated. If TRUE, the average treatment effect on the treated (ATET)  and the corresponding direct and indirect effects are estimated. Default is \code{FALSE}.}
 
-\item{trim}{Trimming rule for discarding observations with extreme generalized propensity scores. If \code{lognorm=FALSE}, observations with f(D=\code{d1}|M,X)<\code{trim} or f(D=\code{d0}|M,X)<\code{trim} are dropped, with f denoting the generalized propensity score (or conditional density of treatment). If \code{lognorm=TRUE}, then \code{trim} corresponds to the share of lowest f(D=\code{d1}|M,X) or f(D=\code{d0}|M,X), respectively, that are dropped.}
+\item{trim}{Trimming rule for discarding observations with too large weights in the estimation of any mean potential outcome. That is, observations with a weight>\code{trim} are dropped from the sample. Default is a maximum weight of 0.1 (or 10\%) per observation.}
 
-\item{lognorm}{If FALSE, a linear model with normally distributed errors is assumed for generalized propensity score estimation. If TRUE, a lognormal model is assumed. Default is FALSE.}
+\item{lognorm}{If FALSE, a linear model with normally distributed errors is assumed for generalized propensity score estimation. If TRUE, a lognormal model is assumed. Default is \code{FALSE}.}
 
-\item{bw}{Bandwith for the second order Epanechnikov kernel functions of the treatment. If set to NULL, the rule of thumb for Epanechnikov kernels is used for bandwidth computation. Default is NULL.}
+\item{bw}{Bandwith for the second order Epanechnikov kernel functions of the treatment. If set to NULL, bandwidth computation is based on the rule of thumb for Epanechnikov kernels, determining the bandwidth as the standard deviation of the treatment times 2.34/(\code{n}^0.25), where \code{n} is the sample size. Default is \code{NULL}.}
 
 \item{boot}{Number of bootstrap replications for estimating standard errors. Default is 1999.}
 
@@ -57,10 +69,10 @@ d=d-min(d)
 m=0.5*d+0.25*x+runif(n=n,min=-2,max=2)
 y=0.5*d+m+0.25*x+runif(n=n,min=-2,max=2)
 # The true direct and indirect effects are all equal to 0.5
-output=medweightcont(y,d,m,x, d0=2, d1=3, ATET=FALSE, trim=0.05, lognorm=FALSE, bw=NULL, boot=19)
+output=medweightcont(y,d,m,x, d0=2, d1=3, ATET=FALSE, trim=0.1, lognorm=FALSE, bw=NULL, boot=19)
 round(output$results,3)
 output$ntrimmed
 }
 \references{
-Hsu, Y.-C., Huber, M., Lee, Y.-Y., Pipoz, L.: (2018): "Direct and indirect effects of continuous treatments based on generalized propensity score weighting",  SES working paper 495, University of Fribourg.
+Hsu, Y.-C., Huber, M., Lee, Y.-Y., Pipoz, L. (2018): "Direct and indirect effects of continuous treatments based on generalized propensity score weighting",  SES working paper 495, University of Fribourg.
 }

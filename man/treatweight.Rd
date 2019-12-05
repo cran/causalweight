@@ -4,9 +4,19 @@
 \alias{treatweight}
 \title{Treatment evaluation based on inverse probability weighting with optional sample selection correction.}
 \usage{
-treatweight(y, d, x, s = NULL, z = NULL, selpop = FALSE,
-  ATET = FALSE, trim = 0.05, logit = FALSE, boot = 1999,
-  cluster = NULL)
+treatweight(
+  y,
+  d,
+  x,
+  s = NULL,
+  z = NULL,
+  selpop = FALSE,
+  ATET = FALSE,
+  trim = 0.05,
+  logit = FALSE,
+  boot = 1999,
+  cluster = NULL
+)
 }
 \arguments{
 \item{y}{Dependent variable.}
@@ -84,7 +94,7 @@ output$ntrimmed
 \references{
 Horvitz, D. G., and Thompson, D. J. (1952): "A generalization of sampling without replacement from a finite universe", Journal of the American Statistical Association, 47, 663–685.
 
-Huber, M. (2012): "Identification of average treatment effects in social experiments under alternative forms of attrition", Journal of Educational and Behavioral Statistics, 37 , 443-474.
+Huber, M. (2012): "Identification of average treatment effects in social experiments under alternative forms of attrition", Journal of Educational and Behavioral Statistics, 37, 443-474.
 
 Huber, M. (2014): "Treatment evaluation in the presence of sample selection", Econometric Reviews, 33, 869-905.
 }

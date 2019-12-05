@@ -4,9 +4,22 @@
 \alias{medlateweight}
 \title{Causal mediation analysis with instruments for treatment and mediator based on weighting}
 \usage{
-medlateweight(y, d, m, zd, zm, x, trim = 0.1, csquared = FALSE,
-  boot = 1999, cminobs = 40, bwreg = NULL, bwm = NULL,
-  logit = FALSE, cluster = NULL)
+medlateweight(
+  y,
+  d,
+  m,
+  zd,
+  zm,
+  x,
+  trim = 0.1,
+  csquared = FALSE,
+  boot = 1999,
+  cminobs = 40,
+  bwreg = NULL,
+  bwm = NULL,
+  logit = FALSE,
+  cluster = NULL
+)
 }
 \arguments{
 \item{y}{Dependent variable, must not contain missings.}

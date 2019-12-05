@@ -4,9 +4,21 @@
 \alias{medweight}
 \title{Causal mediation analysis based on inverse probability weighting with optional sample selection correction.}
 \usage{
-medweight(y, d, m, x, w = NULL, s = NULL, z = NULL, selpop = FALSE,
-  ATET = FALSE, trim = 0.05, logit = FALSE, boot = 1999,
-  cluster = NULL)
+medweight(
+  y,
+  d,
+  m,
+  x,
+  w = NULL,
+  s = NULL,
+  z = NULL,
+  selpop = FALSE,
+  ATET = FALSE,
+  trim = 0.05,
+  logit = FALSE,
+  boot = 1999,
+  cluster = NULL
+)
 }
 \arguments{
 \item{y}{Dependent variable, must not contain missings.}
