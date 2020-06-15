@@ -9,7 +9,7 @@ medDML(
   d,
   m,
   x,
-  k = 4,
+  k = 3,
   trim = 0.05,
   order = 1,
   multmed = TRUE,
@@ -25,7 +25,7 @@ medDML(
 
 \item{x}{(Potential) pre-treatment confounders of the treatment, mediator, and/or outcome, must not contain missings.}
 
-\item{k}{Number of folds in k-fold cross-fitting if \code{multmed} is \code{FALSE}. \code{k}-1 folds are used for estimating the model parameters of the treatment, mediator, and outcome equations and one fold is used for predicting the efficient score functions. The roles of the folds are swapped. Default for \code{k} is 4. If \code{multmed} is \code{TRUE}, then 4-fold cross-valdiation is used, irrespective of the number provided in \code{k} (i.e. \code{k} is ignored if \code{multmed} is \code{TRUE}).}
+\item{k}{Number of folds in k-fold cross-fitting if \code{multmed} is \code{FALSE}. \code{k}-1 folds are used for estimating the model parameters of the treatment, mediator, and outcome equations and one fold is used for predicting the efficient score functions. The roles of the folds are swapped. Default for \code{k} is 3. If \code{multmed} is \code{TRUE}, then 3-fold cross-valdiation is used, irrespective of the number provided in \code{k} (i.e. \code{k} is ignored if \code{multmed} is \code{TRUE}).}
 
 \item{trim}{Trimming rule for discarding observations with extreme conditional treatment or mediator probabilities (or products thereof). Observations with (products of) conditional probabilities that are smaller than \code{trim} in any denominator of the potential outcomes are dropped. Default is 0.05.}
 
@@ -33,7 +33,7 @@ medDML(
 
 \item{multmed}{If set to \code{TRUE}, a representation of direct and indirect effects that avoids conditional mediator densities/probabilities is used, see Farbmacher, Huber, Langen, and Spindler (2019). This method can incorporate multiple and/or continuous mediators. If \code{multmed} is \code{FALSE}, the representation of Tchetgen Tchetgen and Shpitser (2012) is used, which involves mediator densities. In this case, the mediator must be a binary scalar. Default of \code{multimed} is \code{TRUE}.}
 
-\item{fewsplits}{If set to \code{TRUE}, the same training data are used for estimating nested models of nuisance parameters. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of nested models. This parameter is only relevant if \code{multmed} is \code{TRUE}. Default of \code{fewsplits} is \code{FALSE}.}
+\item{fewsplits}{If set to \code{TRUE}, the same training data are used for estimating nested models of nuisance parameters, i.e. \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of nested models \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. This parameter is only relevant if \code{multmed} is \code{TRUE}. Default of \code{fewsplits} is \code{FALSE}.}
 }
 \value{
 A medDML object contains two components, \code{results} and \code{ntrimmed}:
@@ -53,6 +53,7 @@ Standard errors are based on asymptotic approximations using the estimated varia
 }
 \examples{
 # A little example with simulated data (10000 observations)
+\dontrun{
 n=10000                           # sample size
 p=100                             # number of covariates
 s=2                               # number of covariates that are confounders
@@ -64,10 +65,10 @@ y=x\%*\%beta+0.5*d+m+rnorm(n)       # outcome equation
 # The true direct effects are equal to 0.5, the indirect effects equal to 0.19
 output=medDML(y=y,d=d,m=m,x=x)
 round(output$results,3)
-output$ntrimmed
+output$ntrimmed}
 }
 \references{
-Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1–C68.
+Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 
 Farbmacher, H., Huber, M., Langen, H., and Spindler, M. (2019): "Causal mediation analysis with double machine learning", working paper, University of Fribourg.
 

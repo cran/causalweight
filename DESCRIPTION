@@ -1,19 +1,21 @@
 Package: causalweight
 Type: Package
-Title: Estimation Methods for Causal Inference Based on Inverse
-        Probability Weighting
-Version: 0.1.3
+Title: Causal Inference Based on Inverse Probability Weighting, Doubly
+        Robust Estimation, and Double Machine Learning
+Version: 0.2.1
 Author: Hugo Bodory and Martin Huber
 Maintainer: Hugo Bodory <hugo.bodory@unifr.ch>
-Description: Various estimation methods for causal inference based on inverse probability weighting. Specifically, the package includes methods for estimating average treatment effects as well as direct and indirect effects in causal mediation analysis. The models refer to the studies of Froelich (2007) <doi:10.1016/j.jeconom.2006.06.004>, Huber (2012) <doi:10.3102/1076998611411917>, Huber (2014) <doi:10.1080/07474938.2013.806197>, Huber (2014) <doi:10.1002/jae.2341>, and Froelich and Huber (2017) <doi:10.1111/rssb.12232>.
+Description: Various estimators of causal effects based on inverse probability weighting, doubly robust estimation, and double machine learning. Specifically, the package includes methods for estimating average treatment effects, direct and indirect effects in causal mediation analysis, and dynamic treatment effects. The models refer to studies of Froelich (2007) <doi:10.1016/j.jeconom.2006.06.004>, Huber (2012) <doi:10.3102/1076998611411917>, Huber (2014) <doi:10.1080/07474938.2013.806197>, Huber (2014) <doi:10.1002/jae.2341>, Froelich and Huber (2017) <doi:10.1111/rssb.12232>, Hsu, Huber, Lee, and Lettry (2020)  <doi:10.1002/jae.2765>, and others.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.0
-Depends: R (>= 3.5.0), mvtnorm, np, LARF, hdm
+RoxygenNote: 7.1.0
+Depends: R (>= 3.5.0)
+Imports: mvtnorm, np, LARF, hdm, SuperLearner, glmnet, ranger, xgboost,
+        e1071
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2019-12-05 09:06:30 UTC; HBodory
+Packaged: 2020-06-15 09:03:18 UTC; HBodory
 Repository: CRAN
-Date/Publication: 2019-12-05 16:00:02 UTC
+Date/Publication: 2020-06-15 12:10:11 UTC

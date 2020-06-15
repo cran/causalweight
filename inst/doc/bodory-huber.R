@@ -1,5 +1,4 @@
 ### R code from vignette source 'bodory-huber.Rnw'
-### Encoding: ISO8859-1
 
 ###################################################
 ### code chunk number 1: bodory-huber.Rnw:273-281 (eval = FALSE)

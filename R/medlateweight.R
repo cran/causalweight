@@ -6,7 +6,7 @@
 #' @param zd Instrument for the treatment,  must be binary (either 1 or 0), must not contain missings.
 #' @param zm Instrument for the mediator, must contain at least one continuous element, may be a scalar or a vector, must not contain missings. If no user-specified bandwidth is provided for the regressors when estimating the conditional cumulative distribution function F(M|Z2,X), i.e. if \code{bwreg=NULL}, then \code{zm} must be exclusively numeric.
 #' @param x Pre-treatment confounders, may be a scalar or a vector, must not contain missings. If no user-specified bandwidth is provided for the regressors when estimating the conditional cumulative distribution function F(M|Z2,X), i.e. if \code{bwreg=NULL}, then \code{x} must be exclusively numeric.
-#' @param trim Trimming rule for discarding observations with extreme weights. Discards observations whose relative weight would exceed the value in \code{trim} in the estimation of any of the potential outcomes. Default is 0.1 (i.e. a maximum weight of 10\% per observation).
+#' @param trim Trimming rule for discarding observations with extreme weights. Discards observations whose relative weight would exceed the value in \code{trim} in the estimation of any of the potential outcomes. Default is 0.1 (i.e. a maximum weight of 10 percent per observation).
 #' @param csquared If TRUE, then not only the control function C, but also its square is used as regressor in any estimated function that conditions on C. Default is FALSE.
 #' @param boot Number of bootstrap replications for estimating standard errors. Default is 1999.
 #' @param cminobs Minimum number of observations to compute the control function C, see the numerator of equation (7) in Frölich and Huber (2017). A larger value increases boundary bias when estimating the control function for lower values of M, but reduces the variance. Default is 40, but should be adapted to sample size and the number of variables in Z2 and X.
@@ -35,7 +35,7 @@
 #' y=0.5*x+d+m+e[,1]
 #' # The true direct and indirect effects on compliers are equal to 1 and 0.5, respectively
 #' medlateweight(y,d,m,zd,zm,x,trim=0.1,csquared=FALSE,boot=19,cminobs=40,
-#'               bwreg=NULL,bwm=NULL,logit=FALSE)}
+#' bwreg=NULL,bwm=NULL,logit=FALSE)}
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm quantile
 #' @importFrom np npcdensbw npcdist
 #' @import mvtnorm

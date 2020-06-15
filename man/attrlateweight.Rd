@@ -54,6 +54,7 @@ Estimation of local average treatment effects of a binary endogenous treatment o
 }
 \examples{
 # A little example with simulated data (4000 observations)
+\dontrun{
 n=4000
 e=(rmvnorm(n,rep(0,3), matrix(c(1,0.3,0.3,  0.3,1,0.3,  0.3,0.3,1),3,3) ))
 x0=runif(n,0,1)
@@ -67,8 +68,8 @@ y2_star=0.5*x0+x1+d+e[,3]
 s2=s1*((0.25*x0+0.25*x1+0.25*d+rnorm(n)>-0.5)*1)
 y2=s2*y2_star
 # The true LATEs on y1 and y2 are equal to 0.5 and 1, respectively.
-output=attrlateweight(y1=y1,y2=y2,s1=s1,s2=s2,d=d,z=z,x0=x0,x1=x1, boot=19)
-round(output$results,3)
+output=attrlateweight(y1=y1,y2=y2,s1=s1,s2=s2,d=d,z=z,x0=x0,x1=x1,boot=19)
+round(output$results,3)}
 }
 \references{
 Frölich, M., Huber, M. (2014): "Treatment Evaluation With Multiple Outcome Periods Under Endogeneity and Attrition", Journal of the American Statistical Association, 109, 1697-1711.

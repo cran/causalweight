@@ -26,6 +26,7 @@
 #' @references Huber, M. (2014): "Identifying causal mechanisms (primarily) based on inverse probability weighting",  Journal of Applied Econometrics, 29, 920-943.
 #' @references Huber, M. and Solovyeva, A. (2018): "Direct and indirect effects under sample selection and outcome attrition ",  SES working paper 496, University of Fribourg.
 #' @examples # A little example with simulated data (10000 observations)
+#' \dontrun{
 #' n=10000
 #' x=rnorm(n)
 #' d=(0.25*x+rnorm(n)>0)*1
@@ -33,9 +34,9 @@
 #' m=0.5*w+0.5*d+0.25*x+rnorm(n)
 #' y=0.5*d+m+w+0.25*x+rnorm(n)
 #' # The true direct and partial indirect effects are all equal to 0.5
-#' output=medweight(y=y,d=d,m=m,x=x, w=w, trim=0.05, ATET=FALSE, logit=TRUE, boot=19)
+#' output=medweight(y=y,d=d,m=m,x=x,w=w,trim=0.05,ATET=FALSE,logit=TRUE,boot=19)
 #' round(output$results,3)
-#' output$ntrimmed
+#' output$ntrimmed}
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm quantile
 #' @import mvtnorm
 #' @export

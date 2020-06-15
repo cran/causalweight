@@ -46,6 +46,7 @@
 #'   \item{treatmentorder}{1=if order of questions on professional plans and personal information in survey has been reversed (randomized treatment), meaning that personal questions are asked first and professional ones later}
 #' }
 #' @docType data
+#' @references Fernandes, A., Huber, M., and Vaccaro, G. (2020): "Gender Differences in Wage Expectations", arXiv preprint arXiv:2003.11496.
 #' @examples
 #' data(wexpect)
 #' attach(wexpect)

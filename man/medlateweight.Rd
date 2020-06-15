@@ -34,7 +34,7 @@ medlateweight(
 
 \item{x}{Pre-treatment confounders, may be a scalar or a vector, must not contain missings. If no user-specified bandwidth is provided for the regressors when estimating the conditional cumulative distribution function F(M|Z2,X), i.e. if \code{bwreg=NULL}, then \code{x} must be exclusively numeric.}
 
-\item{trim}{Trimming rule for discarding observations with extreme weights. Discards observations whose relative weight would exceed the value in \code{trim} in the estimation of any of the potential outcomes. Default is 0.1 (i.e. a maximum weight of 10\% per observation).}
+\item{trim}{Trimming rule for discarding observations with extreme weights. Discards observations whose relative weight would exceed the value in \code{trim} in the estimation of any of the potential outcomes. Default is 0.1 (i.e. a maximum weight of 10 percent per observation).}
 
 \item{csquared}{If TRUE, then not only the control function C, but also its square is used as regressor in any estimated function that conditions on C. Default is FALSE.}
 
@@ -80,7 +80,7 @@ m=(0.5*x+2*zm+0.5*d+e[,2])
 y=0.5*x+d+m+e[,1]
 # The true direct and indirect effects on compliers are equal to 1 and 0.5, respectively
 medlateweight(y,d,m,zd,zm,x,trim=0.1,csquared=FALSE,boot=19,cminobs=40,
-              bwreg=NULL,bwm=NULL,logit=FALSE)}
+bwreg=NULL,bwm=NULL,logit=FALSE)}
 }
 \references{
 Frölich, M. and Huber, M. (2017): "Direct and indirect treatment effects: Causal chains and mediation analysis with instrumental variables", Journal of the Royal Statistical Society Series B, 79, 1645–1666.

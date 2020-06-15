@@ -17,7 +17,7 @@ didweight(y, d, t, x = NULL, boot = 1999, trim = 0.05, cluster = NULL)
 
 \item{boot}{Number of bootstrap replications for estimating standard errors. Default is 1999.}
 
-\item{trim}{Trimming rule for discarding observations with extreme propensity scores in the 3 reweighting steps, which reweight (1) treated in the pre-treatment period, (2) non-treated in the post-treatment period, and (3) non-treated in the pre-treatment period according to the covariate distribution of the treated in the post-treatment period. Default is 0.05, implying that observations with a probability lower than 5\% of not being treated in some weighting step are discarded.}
+\item{trim}{Trimming rule for discarding observations with extreme propensity scores in the 3 reweighting steps, which reweight (1) treated in the pre-treatment period, (2) non-treated in the post-treatment period, and (3) non-treated in the pre-treatment period according to the covariate distribution of the treated in the post-treatment period. Default is 0.05, implying that observations with a probability lower than 5 percent of not being treated in some weighting step are discarded.}
 
 \item{cluster}{A cluster ID for block or cluster bootstrapping when units are clustered rather than iid. Must be numerical. Default is \code{NULL} (standard bootstrap without clustering).}
 }
@@ -40,6 +40,7 @@ Estimation of the average treatment effect on the treated in the post-treatment 
 }
 \examples{
 # A little example with simulated data (4000 observations)
+\dontrun{
 n=4000                            # sample size
 t=1*(rnorm(n)>0)                  # time period
 u=rnorm(n)                        # time constant unobservable
@@ -47,7 +48,7 @@ x=0.5*t+rnorm(n)                  # time varying covariate
 d=1*(x+u+rnorm(n)>0)              # treatment
 y=d*t+d+t+x+u                     # outcome
 # The true effect equals 1
-didweight(y=y,d=d,t=t,x=x, boot=199)
+didweight(y=y,d=d,t=t,x=x, boot=199)}
 }
 \references{
 Abadie, A. (2005): "Semiparametric Difference-in-Differences Estimators", The Review of Economic Studies, 72, 1-19.

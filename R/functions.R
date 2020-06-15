@@ -106,7 +106,7 @@ mediation<-function(y,d,m,x,w=NULL,s=NULL,z=NULL, selpop=FALSE, trim=0.05, ATET=
 bootstrap.mediation<-function(y,d,m,x,w=NULL,s=NULL,z=NULL,boot=1999, selpop=FALSE, trim=0.05, ATET=FALSE, logit=FALSE, cluster=NULL){
   if (is.null(cluster)){
     obs<-length(y)
-    bsamples=matrix( ,boot,6)
+    bsamples=matrix(NA,boot,6)
     for(i in 1:boot){
       sboot<-sample(1:obs,obs,TRUE)
       yb=y[sboot]
@@ -228,7 +228,7 @@ ipw<-function(y,d,x,s,z, selpop=FALSE, trim=0.05, ATET=FALSE, logit=FALSE){
 bootstrap.ipw<-function(y,d,x,s=NULL,z=NULL, selpop=FALSE, boot=1999,trim=0.05, ATET=FALSE, logit=FALSE, cluster=NULL){
   if (is.null(cluster)){
    obs<-length(y)
-    bsamples=matrix( ,boot,4)
+    bsamples=matrix(NA,boot,4)
     for(i in 1:boot){
       sboot<-sample(1:obs,obs,TRUE)
       yb=y[sboot]; db<-d[sboot]
@@ -302,7 +302,7 @@ late<-function(y,d,z, x,trim=0.05, LATT=FALSE, logit=FALSE){
 bootstrap.late<-function(y,d,z,x,boot=1999,trim=0.05, LATT=FALSE, logit=FALSE, cluster=NULL){
   if (is.null(cluster)){
     obs<-length(y)
-    bsamples=matrix( ,boot,4)
+    bsamples=matrix(NA,boot,4)
     for(i in 1:boot){
       sboot=sample(1:obs,obs,TRUE)
       yb=y[sboot]; db=d[sboot]; zb=z[sboot];
@@ -344,7 +344,7 @@ effects.late.x<-function(y,d,m,zd,  x, zm, trim=0.05, csquared=FALSE, bwreg=bwre
   if (is.null(bwreg) | is.null(bwm)) temp<-npcdensbw(ydat=m, xdat=data.frame(zm,x), ckertype="gaussian", bwmethod="normal-reference")
   if (is.null(bwreg))  bwreg<-temp$xbw
   if (is.null(bwm))  bwm<-temp$ybw
-  m.dist=npcdist(bws=c(bwreg,bwm), tydat=m, txdat=data.frame(zm,x), ckertype="gaussian")$condist
+  m.dist=npcdist(bws=c(bwm,bwreg), tydat=m, txdat=data.frame(zm,x), ckertype="gaussian")$condist
   x<-as.matrix(cbind(x))
   zm<-as.matrix(cbind(zm))
   nobs=length(y)
@@ -418,7 +418,7 @@ effects.late.x<-function(y,d,m,zd,  x, zm, trim=0.05, csquared=FALSE, bwreg=bwre
 bootstrap.mediation.late.x<-function(y,d,m,zd,zm,x, boot=1999,trim=0.05, csquared=FALSE, bwreg=bwreg, bwm= bwm, cminobs=40, logit=FALSE, cluster=NULL){
   if (is.null(cluster)){
     obs<-length(y)
-    bsamples=matrix( ,boot,8)
+    bsamples=matrix(NA,boot,8)
     for(i in 1:boot){
       sboot<-sample(1:obs,obs,TRUE)
       yb=y[sboot]; db<-d[sboot]; zdb<-zd[sboot]; mb=m[sboot]
@@ -505,7 +505,7 @@ mediation.cont<-function(y,d,m,x, d0, d1, ATET=FALSE, trim=0.05, lognorm=FALSE, 
 bootstrap.mediation.cont<-function(y,d,m,x,d0,d1,ATET=FALSE, trim=0.05, lognorm=FALSE, bw, boot=1999, cluster=NULL){
   if (is.null(cluster)){
     obs<-length(y)
-    bsamples=matrix( ,boot,6)
+    bsamples=matrix(NA,boot,6)
     for(i in 1:boot){
       sboot<-sample(1:obs,obs,TRUE)
       yb=y[sboot]
@@ -706,7 +706,7 @@ attrlate<-function(y1,y2,r1,r2,d,z,x0,x1, weightmax=0.1){
 bootstrap.attrlate<-function(y1,y2,r1,r2,d,z,x0,x1,weightmax=0.1, boot=1999, cluster=NULL){
   if (is.null(cluster)){
     obs<-length(d)
-    bsamples=matrix( ,boot,8)
+    bsamples=matrix(NA,boot,8)
     for(i in 1:boot){
       sboot<-sample(1:obs,obs,TRUE)
       y1b=y1[sboot]; y2b=y2[sboot]; r1b=r1[sboot]; r2b=r2[sboot]; db<-d[sboot]; zb<-z[sboot]
@@ -761,7 +761,7 @@ ipwcount<-function(y,d,x=NULL,trim=0.02){
 ipw.did<-function(y,d,t, x=NULL, trim=0.02){
   index=1*cbind(d, t, (d*t)+(1-d)*(1-t))
   treat=1*(d*t)
-  means=matrix(,3,1)
+  means=matrix(NA,3,1)
   totaldropped=0
   for (j in 1:3){xxx=NULL; yyy=y[index[,j]==1]; ttreat=treat[index[,j]==1];
   if (is.null(x)==FALSE & is.null(ncol(x)) ) xxx=x[index[,j]==1]
@@ -776,7 +776,7 @@ ipw.did<-function(y,d,t, x=NULL, trim=0.02){
 bootstrap.did<-function(y,d,t, x=NULL,boot=1999,trim=0.05, cluster=NULL){
   if (is.null(cluster)){
     obs<-length(y)
-    bsamples=matrix( ,boot,1)
+    bsamples=matrix(NA,boot,1)
     for(i in 1:boot){
       sboot=sample(1:obs,obs,TRUE)
       yb=y[sboot]; db=d[sboot]; tb=t[sboot];
@@ -821,13 +821,15 @@ bootstrap.did<-function(y,d,t, x=NULL,boot=1999,trim=0.05, cluster=NULL){
 
 
 
-hdmed=function(y,d,m,x,k=4, trim=0.05, order=1){
+hdmed=function(y,d,m,x,k=3, trim=0.05, order=1){
+  ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
   if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
   stepsize=ceiling((1/k)*length(d))
+  set.seed(1); idx= sample(length(d), replace=FALSE)
   y1m0=c();y1m1=c();y0m0=c(); y0m1=c(); selall=c()
   # crossfitting procedure that splits sample in training an testing data
   for (i in 1:k){
-    tesample=c(((i-1)*stepsize+1):(min((i)*stepsize,length(d))))
+    tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
     dtr=d[-tesample]; dte=d[tesample]; ytr=y[-tesample]; yte=y[tesample]; ytr1= ytr[dtr==1]; ytr0= ytr[dtr==0];
     mtr=m[-tesample]; mte=m[tesample]; mtr1=mtr[dtr==1]; mtr0=mtr[dtr==0];
     if (is.null(ncol(x)) | ncol(x)==1) {
@@ -836,7 +838,6 @@ hdmed=function(y,d,m,x,k=4, trim=0.05, order=1){
     if (is.null(ncol(x))==0 & ncol(x)>1) {
       xtr=x[-tesample,]; xte=x[tesample,]; xtr1=xtr[dtr==1,]; xtr0=xtr[dtr==0,]; xtr11=xtr[dtr==1 & mtr==1,]; xtr10=xtr[dtr==1 & mtr==0,]; xtr01=xtr[dtr==0 & mtr==1,]; xtr00=xtr[dtr==0 & mtr==0,]
     }
-    ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
       ytr11=ytr[dtr==1 & mtr==1]; ytr10=ytr[dtr==1 & mtr==0]; ytr01=ytr[dtr==0 & mtr==1]; ytr00=ytr[dtr==0 & mtr==0];
       # tr stands for first training data, te for test data, "1" and "0" for subsamples with treated and nontreated
       tr=data.frame(ytr,dtr,xtr,mtr);
@@ -924,31 +925,32 @@ hdmed=function(y,d,m,x,k=4, trim=0.05, order=1){
 
 # function for mediation with high dimensional covariates based on Bayes rule
 hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
+  ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
   #generate higher order terms for lasso
     xm=cbind(x,m)
     if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
     if (order>1) xm=Generate.Powers(xm,lambda=order); xm=as.matrix(xm,nrow(xm),ncol(xm))
-
-  stepsize=ceiling((1/4)*length(d))
+    stepsize=ceiling((1/3)*length(d))
+    nobs = min(3*stepsize,length(d)); set.seed(1); idx = sample(nobs);
+    sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];
+    sample3 = idx[(2*stepsize+1):nobs];
+    #nobs = min(4*stepsize,length(d)); set.seed(1); idx = sample(nobs);
+    #sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];
+    #sample3 = idx[(2*stepsize+1):(3*stepsize)]; sample4 = idx[(3*stepsize+1):nobs]
   y1m0=c();y1m1=c();y0m0=c(); y0m1=c(); selall=c()
   # crossfitting procedure that splits sample in training an testing data
-  sample1=c(1:stepsize); sample2=c( (stepsize+1):(2*stepsize)); sample3=c( (2*stepsize+1):(3*stepsize));
-  sample4=c(((3)*stepsize+1):(min((4)*stepsize,length(d))))
-  for (i in 1:4){
-    if (i==1) {tesample=sample1; musample=sample2; psample=sample3; deltasample=sample4}
-    if (i==2) {tesample=sample4; musample=sample1; psample=sample2; deltasample=sample3}
-    if (i==3) {tesample=sample3; musample=sample4; psample=sample1; deltasample=sample2}
-    if (i==4) {tesample=sample2; musample=sample3; psample=sample4; deltasample=sample1}
-    trsample=c(musample,psample,deltasample); dte=d[tesample]; yte=y[tesample]
+  for (i in 1:3){
+    if (i==1) {tesample=sample1; musample=sample2; deltasample=sample3}
+    if (i==2) {tesample=sample3; musample=sample1; deltasample=sample2}
+    if (i==3) {tesample=sample2; musample=sample3; deltasample=sample1}
+    trsample=c(musample,deltasample); dte=d[tesample]; yte=y[tesample]
     # in case that fewsplits is one, psample and musample are merged
-    if (fewsplits==1){musample=c(musample,psample);psample=musample}
+    if (fewsplits==1){musample=c(musample,deltasample);deltasample=musample}
       x=as.matrix(x,nrow(x),ncol(x)); xm=as.matrix(xm,nrow(xm),ncol(xm))
-      ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
-      pmx=rlassologit(d[psample]~xm[psample,])
+      # fit Pr(D=1|M,X) in total of training data
+      pmx=rlassologit(d[trsample]~xm[trsample,])
       # predict Pr(D=1|M,X) in test data
       pmxte=predict(pmx, xm[tesample,], type="response")
-      # predict Pr(D=1|M,X) in delta sample
-      pmxtrte=predict(pmx, xm[deltasample,], type="response")
       # fit Pr(D=1|X) in total of training data
       px=rlassologit(d[trsample]~x[trsample,])
       # predict Pr(D=1|X) in test data
@@ -968,11 +970,10 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
         # predict E(Y|M,X,D=1) in delta sample
         eymx1trte=predict(eymx1, xm[deltasample,], type="response")
       }
-      #compute E(Y|M,X,D=1)*(1-Pr(D=1|M,X)) based on predictions in delta sample
-      weymx1trte=eymx1trte*(1-pmxtrte)
-      # fit E[E(Y|M,X,D=1)*(1-Pr(D=1|M,X)|X] in delta sample
-      regweymx1=rlasso(weymx1trte~x[deltasample,])
-      # predict E[E(Y|M,X,D=1)*(1-Pr(D=1|M,X)|X] in the test data
+      # fit E[E(Y|M,X,D=1)|D=0,X] in delta sample
+      dtrte=d[deltasample]; xtrte=x[deltasample,]
+      regweymx1=rlasso(eymx1trte[dtrte==0]~xtrte[dtrte==0,])
+      # predict E[E(Y|M,X,D=1)|D=0,X] in the test data
       regweymx1te=predict(regweymx1, x[tesample,])
       #  fit E(Y|X,D=1) in total of training data with D=1 by running Y~X
       if (ybin!=1){
@@ -997,11 +998,9 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
         # predict E(Y|M,X,D=0) in delta sample
         eymx0trte=predict(eymx0, xm[deltasample,], type="response")
       }
-      #compute E(Y|M,X,D=0)*Pr(D=1|M,X) based on predictions in second training data
-      weymx0trte=eymx0trte*(pmxtrte)
-      # fit E[E(Y|M,X,D=0)*Pr(D=1|M,X)|X] in delta sample
-      regweymx0=rlasso(weymx0trte~x[deltasample,])
-      # predict E[E(Y|M,X,D=0)*Pr(D=1|M,X)|X] in the test data
+      # fit E[E(Y|M,X,D=0)|D=1,X] in delta sample
+      regweymx0=rlasso(eymx0trte[dtrte==1]~xtrte[dtrte==1,])
+      # predict E[E(Y|M,X,D=0)|D=1, X] in the test data
       regweymx0te=predict(regweymx0, x[tesample,])
       if (ybin!=1){
         #  fit E(Y|X,D=0) in total of training data with D=0 by running Y~X
@@ -1018,13 +1017,13 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
     # select observations satisfying trimming restriction
     sel= 1*((((1-pmxte)*pxte)>=trim) & ((1-pxte)>=trim)  & (pxte>=trim) &  (((pmxte*(1-pxte)))>=trim)   )
     # predict E(Y0,M(1)) in the test data
-    temp=((1-dte)*pmxte/((1-pmxte)*pxte)*(yte-eymx0te)+dte/pxte*(eymx0te-regweymx0te/pxte)+regweymx0te/pxte)
+    temp=((1-dte)*pmxte/((1-pmxte)*pxte)*(yte-eymx0te)+dte/pxte*(eymx0te-regweymx0te)+regweymx0te)
     y0m1=c(y0m1,temp[sel==1])
     # predict E(Y0,M(0)) in the test data
     temp=(eyx0te + (1-dte)*(yte-eyx0te)/(1-pxte))
     y0m0=c(y0m0,temp[sel==1])
     # predict E(Y1,M(0)) in the test data
-    temp=(dte*(1-pmxte)/(pmxte*(1-pxte))*(yte-eymx1te)+(1-dte)/(1-pxte)*(eymx1te-regweymx1te/(1-pxte))+regweymx1te/(1-pxte))
+    temp=(dte*(1-pmxte)/(pmxte*(1-pxte))*(yte-eymx1te)+(1-dte)/(1-pxte)*(eymx1te-regweymx1te)+regweymx1te)
     y1m0=c(y1m0,temp[sel==1])
     # predict E(Y1,M(1)) in the test data
     temp=(eyx1te + dte*(yte-eyx1te)/pxte)
@@ -1042,4 +1041,552 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
   # report effects, mean of Y(0,M(0)), variances, number of non-trimmed observations
   c(tot, dir1, dir0, indir1, indir0, my0m0, vtot, vdir1, vdir0, vindir1, vindir0, vcontrol, sum(selall))
 }
+
+
+# DYNAMIC TREATMENT EFFECTS WITH DOUBLE MACHINE LEARNING
+
+MLfunct=function(y, x, d1=NULL, d2=NULL, MLmethod="lasso",  ybin=0){
+  if (is.null(d1)==0 & is.null(d2)==0) { y=y[d1==1 & d2==1]; x=x[d1==1 & d2==1,]}
+  if (is.null(d1)==0 & is.null(d2)==1) { y=y[d1==1]; x=x[d1==1,]}
+  if  (MLmethod=="lasso"){
+    if (ybin==1) model=SuperLearner(Y = y, X = x, family = binomial(), SL.library = "SL.glmnet")
+    if (ybin!=1) model=SuperLearner(Y = y, X = x, family = gaussian(), SL.library = "SL.glmnet")
+  }
+  if  (MLmethod=="randomforest"){
+    if (ybin==1) model=SuperLearner(Y = y, X = x, family = binomial(), SL.library = "SL.ranger")
+    if (ybin!=1) model=SuperLearner(Y = y, X = x, family = gaussian(), SL.library = "SL.ranger")
+  }
+  if  (MLmethod=="xgboost"){
+    if (ybin==1) model=SuperLearner(Y = y, X = x, family = binomial(), SL.library = "SL.xgboost")
+    if (ybin!=1) model=SuperLearner(Y = y, X = x, family = gaussian(), SL.library = "SL.xgboost")
+  }
+ if  (MLmethod=="svm"){
+   if (ybin==1) model=SuperLearner(Y = y, X = x, family = binomial(), SL.library = "SL.svm")
+   if (ybin!=1) model=SuperLearner(Y = y, X = x, family = gaussian(), SL.library = "SL.svm")
+ }
+  if  (MLmethod=="ensemble"){
+    if (ybin==1) model=SuperLearner(Y = y, X = x, family = binomial(), SL.library = c("SL.glmnet", "SL.xgboost", "SL.svm", "SL.ranger"))
+    if (ybin!=1) model=SuperLearner(Y = y, X = x, family = gaussian(), SL.library = c("SL.glmnet", "SL.xgboost", "SL.svm", "SL.ranger"))
+  }
+  if  (MLmethod=="parametric"){
+    if (ybin==1) model=SuperLearner(Y = y, X = x, family = binomial(), SL.library = "SL.glm")
+    if (ybin!=1) model=SuperLearner(Y = y, X = x, family = gaussian(), SL.library = "SL.lm")
+  }
+  model
+}
+
+hddyntreat=function(y2,d1,d2,x0,x1, s=NULL, trim=0.05, MLmethod="lasso", fewsplits=fewsplits){
+  ybin=1*(length(unique(y2))==2 & min(y2)==0 & max(y2)==1)  # check if binary outcome
+  x0=data.frame(x0); x0x1=data.frame(x0,x1); d1x0x1=data.frame(d1,x0x1);
+  # crossfitting procedure that splits sample in training an testing data
+  stepsize=ceiling((1/3)*length(y2))
+  nobs = min(3*stepsize,length(y2)); set.seed(1); idx = sample(nobs);
+  sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)]; sample3 = idx[(2*stepsize+1):nobs];
+  score=c(); sel=c(); trimmed=c()
+  for (i in 1:3){
+    if (i==3) {trsample1=sample1; trsample2=sample2; tesample=sample3}
+    if (i==1) {trsample1=sample2; trsample2=sample3; tesample=sample1}
+    if (i==2) {trsample1=sample3; trsample2=sample1; tesample=sample2}
+    # total training sample
+    trsample=c(trsample1,trsample2)
+    # in case that fewsplits is one, both training data are merged
+    if (fewsplits==1){trsample1=c(trsample1,trsample2);trsample2=trsample1}
+    if (is.null(s)) {gte=rep(1,length(tesample)); ste=gte} #check if weighted estimation should be performed
+    if (is.null(s)==0) {
+      g=MLfunct(y=s[trsample], x=x0[trsample,], MLmethod=MLmethod,  ybin=1)
+      gte=predict(g, x0[tesample,], onlySL = TRUE)$pred     #predict weighting function in test data
+      ste=s[tesample]
+    }
+    p1=MLfunct(y=d1[trsample], x=x0[trsample,], MLmethod=MLmethod,  ybin=1)
+    p1te=predict(p1, x0[tesample,], onlySL = TRUE)$pred     #predict ps1 in test data
+
+    p2=MLfunct(y=d2[trsample], x=d1x0x1[trsample,], MLmethod=MLmethod, ybin=1)
+    p2te=predict(p2, d1x0x1[tesample,], onlySL = TRUE)$pred  #predict ps2 in test data
+
+    y2d1d2=MLfunct(y=y2[trsample1], x=x0x1[trsample1,], d1=d1[trsample1], d2=d2[trsample1], MLmethod=MLmethod, ybin=ybin)
+    y2d1d2te=predict(y2d1d2,  x0x1[tesample,], onlySL = TRUE)$pred  #predict E[Y2|D1,D2,X0,X1] in test data
+    y2d1d2tr2=predict(y2d1d2, x0x1[trsample2,], onlySL = TRUE)$pred  #predict E[Y2|D1,D2,X0,X1] in second training data
+
+    y1d1=MLfunct(y=y2d1d2tr2, x=x0[trsample2,], d1=d1[trsample2], MLmethod=MLmethod, ybin=0)
+    y1d1te=predict(y1d1, x0[tesample,], onlySL = TRUE)$pred  #predict E[Y2|D1,D2,X0,X1] in test data
+
+    # observations not satisfying trimming restriction
+    trimmed=1*((p1te*p2te)<trim)
+    score=rbind(score, cbind(gte,d1[tesample],d2[tesample],y2[tesample],y2d1d2te,p1te,p2te,y1d1te,ste,trimmed))
+  }
+  score = score[order(idx),]
+  score
+}
+
+
+# ATE ESTIMATION BASED ON DML
+hdtreat=function(y,d,x,s=NULL, trim=0.01, MLmethod="lasso", k=3){
+  ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)  # check if binary outcome
+  x=data.frame(x)
+  stepsize=ceiling((1/k)*length(d))
+  set.seed(1); idx= sample(length(d), replace=FALSE)
+  score=c();
+  # crossfitting procedure that splits sample in training an testing data
+  for (i in 1:k){
+    tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
+    trsample=idx[-tesample]
+    if (is.null(s)) {gte=rep(1,length(tesample)); ste=gte} #check if weighted estimation should be performed
+    if (is.null(s)==0) {
+      g=MLfunct(y=s[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
+      gte=predict(g, x[tesample,], onlySL = TRUE)$pred     #predict weighting function in test data
+      ste=s[tesample]
+    }
+    ps=MLfunct(y=d[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
+    pste=predict(ps, x[tesample,], onlySL = TRUE)$pred     #predict propensity score in test data
+    eydx=MLfunct(y=y[trsample], x=x[trsample,], d1=d[trsample], MLmethod=MLmethod, ybin=ybin)
+    eydxte=predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
+    # observations not satisfying trimming restriction
+    trimmed=1*((pste)<trim)
+    score=rbind(score, cbind(gte,d[tesample],y[tesample],eydxte,pste, ste,trimmed))
+  }
+  score = score[order(idx),]
+  score
+}
+
+
+
+# LATE WITH ATTRITION
+
+
+latenonresp=function(y,d,r,z1,z2, bw1=NULL, bw2=NULL, bw3=NULL, bw4=NULL, bw5=NULL, bw6=NULL, bw7=NULL, bw8=NULL, bw9=NULL, bw10=NULL, bw11=NULL, bw12=NULL, ruleofthumb=1,  wgtfct=2, rtype="ll", numresprob=100, trim=0.01){
+
+  Pz1=mean(z1); yphi=r*(z1-Pz1); yphi2=(z1-Pz1); Pco=mean(d[z1==1])-mean(d[z1==0]); n=length(r)
+
+  if (is.null(bw1)) {
+    if (ruleofthumb!=1) bw1<-npregbw(ydat=yphi[d==1], xdat=z2[d==1], regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw1<-npudensbw(dat=z2[d==1], ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  phi1a<-(npreg(bws=bw1, tydat=yphi[d==1], txdat=z2[d==1], exdat=z2, regtype=rtype, ckertype="gaussian")$mean)
+  phi1apar<-cbind(1,z2)%*%coef(lm(yphi[d==1]~z2[d==1]))
+
+  if (is.null(bw2)) {
+    if (ruleofthumb!=1) bw2<-npregbw(ydat=yphi2[d==1], xdat=z2[d==1], regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw2<-bw1
+  }
+  phi1b<-(npreg(bws=bw2, tydat=yphi2[d==1], txdat=z2[d==1], exdat=z2, regtype=rtype, ckertype="gaussian")$mean)
+  phi1bpar<-cbind(1,z2)%*%coef(lm(yphi2[d==1]~z2[d==1]))
+  phi1=phi1a/phi1b; phi1par=phi1apar/phi1bpar
+
+  if (is.null(bw3)) {
+    if (ruleofthumb!=1) bw3<-npregbw(ydat=yphi[d==0], xdat=z2[d==0], regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw3<-npudensbw(dat=z2[d==0], ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  phi0a<-(npreg(bws=bw3, tydat=yphi[d==0], txdat=z2[d==0], exdat=z2, regtype=rtype, ckertype="gaussian")$mean)
+  phi0apar<-cbind(1,z2)%*%coef(lm(yphi[d==0]~z2[d==0]))
+
+  if (is.null(bw4)) {
+    if (ruleofthumb!=1) bw4<-npregbw(ydat=yphi2[d==0], xdat=z2[d==0], regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw4<-bw3
+  }
+  phi0b<-(npreg(bws=bw4, tydat=yphi2[d==0], txdat=z2[d==0], exdat=z2, regtype=rtype, ckertype="gaussian")$mean)
+  phi0bpar<-cbind(1,z2)%*%coef(lm(yphi2[d==0]~z2[d==0]))
+
+  phi0=phi0a/phi0b; phi0par=phi0apar/phi0bpar
+
+  yrd=y*r*d*(z1-Pz1);yr1_d=y*r*(1-d)*(z1-Pz1)
+  minselprob=max(min(phi1),min(phi0),0.01); maxselprob=min(max(phi1),max(phi0),1)
+
+  if (is.null(bw5)) {
+    if (ruleofthumb!=1) bw5<-npregbw(ydat=yrd, xdat=phi1, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw5<-npudensbw(dat=phi1, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  predval=seq(from=minselprob,to=maxselprob,length.out=numresprob)
+  eyrd<-(npreg(bws=bw5, tydat=yrd, txdat=phi1, exdat=predval, regtype=rtype, ckertype="gaussian")$mean)
+  eyrdpar<-cbind(1,predval)%*%lm(yrd~phi1par)$coef
+
+  if (is.null(bw6)) {
+    if (ruleofthumb!=1) bw6<-npregbw(ydat=yr1_d, xdat=phi0, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw6<-npudensbw(dat=phi0, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  eyr1_d<-(npreg(bws=bw6, tydat=yr1_d, txdat=phi0, exdat=predval, regtype=rtype, ckertype="gaussian")$mean)
+  eyr1_dpar<-cbind(1,predval)%*%lm(yr1_d~phi0par)$coef
+
+  late=(eyrd+eyr1_d)*1/(Pz1*(1-Pz1)*predval*Pco)
+  latepar=(eyrdpar+eyr1_dpar)*1/(Pz1*(1-Pz1)*predval*Pco)
+
+
+  if (is.null(bw7)) {
+    if (ruleofthumb!=1) bw7<-npudensbw(dat=phi1[d==1], ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw7<-npudensbw(dat=phi1[d==1],ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+
+  if (is.null(bw8)) {
+    if (ruleofthumb!=1) bw8<-npudensbw(dat=phi1par[d==1], ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw8<-npudensbw(dat=phi1par[d==1], ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+  if (is.null(bw9)) {
+    if (ruleofthumb!=1) bw9<-npudensbw(dat=phi0[d==0], ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw9<-npudensbw(dat=phi0[d==0], ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+  if (is.null(bw10)) {
+    if (ruleofthumb!=1) bw10<-npudensbw(dat=phi0par[d==0], ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw10<-npudensbw(dat=phi0par[d==0], ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+  grid=c(predval); lgrid=length(grid)
+  fphi1para=npudens(bws=bw6, tdat=phi1par[d==1], edat=grid)$dens
+  fphi0para=npudens(bws=bw8, tdat=phi0par[d==0], edat=grid)$dens
+  fphi1a=npudens(bws=bw5, tdat=phi1[d==1], edat=grid)$dens
+  fphi0a=npudens(bws=bw7, tdat=phi0[d==0], edat=grid)$dens
+
+
+  if (wgtfct==1){
+    y1sq=(y^2)*r*d*((z1/Pz1^2)+(1-z1)/((1-Pz1)^2))
+    y0sq=(y^2)*r*(1-d)*((z1/Pz1^2)+(1-z1)/((1-Pz1)^2))
+    if (is.null(bw11)) {
+      if (ruleofthumb!=1) bw11=npregbw(ydat=y1sq, xdat=phi1, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+      if (ruleofthumb==1) bw11=npudensbw(dat=phi1, ckertype="gaussian", bwmethod="normal-reference")$bw
+    }
+    if (is.null(bw12)) {
+      if (ruleofthumb!=1) bw12=npregbw(ydat=y0sq, xdat=phi0, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+      if (ruleofthumb==1) bw12=npudensbw(dat=phi0, ckertype="gaussian", bwmethod="normal-reference")$bw
+    }
+    lambda1a=npreg(bws=bw11, tydat=y1sq, txdat=phi1, exdat=grid, regtype=rtype, ckertype="gaussian")$mean
+    lambda0a=npreg(bws=bw12, tydat=y0sq, txdat=phi0, exdat=grid, regtype=rtype, ckertype="gaussian")$mean
+
+    wgttemp=sqrt(lambda1a/fphi1a+lambda0a/fphi0a);wgttemp[wgttemp<trim]=trim
+    wgta=grid/wgttemp
+    ind=is.na(wgta)
+    wgta=wgta[ind==0]
+    cx=sum(wgta)
+    latetemp=sum(late[ind==0]*(wgta/(cx)))
+
+    temp=lm(y1sq~phi1); temp2=lm(y0sq~phi0);
+
+    lambda0para=(cbind(1,grid)%*%coef(temp2))
+    lambda1para=(cbind(1,grid)%*%coef(temp))
+    wgttemppara=sqrt(lambda1para/fphi1para+lambda0para/fphi0para); wgttemppara[wgttemppara<trim]=trim
+    wgtpara=grid/wgttemppara
+    cxpar=sum(wgtpara)
+    latepartemp=sum(latepar*(wgtpara/(cxpar)))
+  }
+
+  if (wgtfct!=1 & wgtfct!=3){
+    wgttemp=sqrt(1/fphi1a+1/fphi0a);wgttemp[wgttemp<trim]=trim
+    wgta=grid/wgttemp
+    cx=sum(wgta)
+    latetemp=sum(late*(wgta/(cx)))
+
+    wgttemppara=sqrt(1/fphi1para+1/fphi0para); wgttemppara[wgttemppara<trim]=trim
+    wgtpara=grid/wgttemppara
+    cxpar=sum(wgtpara)
+    latepartemp=sum(latepar*(wgtpara/(cxpar)))
+  }
+
+  if (wgtfct==3){
+    latetemp=median(late[is.na(late)==0])
+    latepartemp=median(latepar[is.na(latepar)==0])
+  }
+
+
+
+  itt=sum(y[r==1]*z1[r==1]/Pz1)/sum(z1[r==1]/Pz1)-sum(y[r==1]*(1-z1[r==1])/(1-Pz1))/sum((1-z1[r==1])/(1-Pz1));
+  Pco=sum(d[r==1]*z1[r==1]/Pz1)/sum(z1[r==1]/Pz1)-sum(d[r==1]*(1-z1[r==1])/(1-Pz1))/sum((1-z1[r==1])/(1-Pz1)); n=length(r)
+  latenaive=itt/Pco
+
+  list(late=latetemp, latepar=latepartemp, latenaive=latenaive, latenaivepar=latenaive, phi1=phi1, phi1par=phi1par, phi0=phi0, phi0par=phi0par, bw1=bw1, bw2=bw2, bw3=bw3, bw4=bw4, bw5=bw5, bw6=bw6)
+}
+
+
+
+latenonrespxx=function(y,d,r,z1,z2, x=NULL, xpar=NULL, bres1=NULL, bres0=NULL, bwyz1=NULL, bwdz1=NULL, bwyz0=NULL, bwdz0=NULL, bwps=NULL, bwcox1=NULL, bwcox2=NULL, bw1=NULL, bw2=NULL, bw3=NULL, bw4=NULL, bw5=NULL, bw6=NULL, bw7=NULL, bw8=NULL, bw9=NULL, bw10=NULL, bw11=NULL, bw12=NULL, ruleofthumb=1, wgtfct=2, rtype="ll", numresprob=100, estlate=TRUE, trim=0.01){
+  if (ncol(data.frame(x))>1 | is.null(ncol(x))==0) {xd1=x[d==1,]; xd0=x[d==0,]; xz11=x[z1==1,]; xz10=x[z1==0,]; xz11r1=x[z1==1 & r==1,]; xz10r1=x[z1==0 & r==1,]}
+  if ( (ncol(data.frame(x))==1) & is.null(ncol(x))  ) {xd1=x[d==1]; xd0=x[d==0]; xz11=x[z1==1]; xz10=x[z1==0]; xz11r1=x[z1==1 & r==1]; xz10r1=x[z1==0 & r==1] }
+
+  if (is.null(bres1)){
+    if (ruleofthumb!=1) bres1=npregbw(ydat=factor(r[z1==1 ]), xdat=xz11, regtype="lc", ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bres1=npudensbw(dat=xz11, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  pres1=npreg(bws=bres1, tydat=factor(r[z1==1 ]), txdat=xz11, exdat=x, regtype="lc", ckertype="gaussian")$mean-1
+  prespara1=pnorm(cbind(1,xpar)%*%coef(glm(formula=r[z1==1 ]~cbind(xpar)[z1==1,],family=binomial(probit))))
+  if (is.null(bres0)){
+    if (ruleofthumb!=1) bres0=npregbw(ydat=factor(r[z1==0 ]), xdat=xz11, regtype="lc", ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bres0=npudensbw(dat=xz10, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  pres0=npreg(bws=bres0, tydat=factor(r[z1==0 ]), txdat=xz10, exdat=x, regtype="lc", ckertype="gaussian")$mean-1
+  prespara0=pnorm(cbind(1,xpar)%*%coef(glm(formula=r[z1==0 ]~cbind(xpar)[z1==0,],family=binomial(probit))))
+  pres=z1*pres1+(1-z1)*pres0; prespara=z1*prespara1+(1-z1)*prespara0
+
+  if (is.null(bwyz1)){
+    if (ruleofthumb!=1) bwyz1<-npregbw(ydat=y[z1==1 & r==1], xdat=xz11r1, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bwyz1=npudensbw(dat=xz11r1, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  eyz1=npreg(bws=bwyz1, tydat=y[z1==1 & r==1], txdat=xz11r1, exdat=x, regtype=rtype, ckertype="gaussian")$mean
+  eyz1par<-cbind(1,xpar)%*%coef(lm(y[z1==1 & r==1]~cbind(xpar)[z1==1 & r==1,]))
+
+  if (is.null(bwyz0)){
+    if (ruleofthumb!=1) bwyz0<-npregbw(ydat=y[z1==0 & r==1], xdat=xz10r1, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bwyz0=npudensbw(dat=xz10r1, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  eyz0=npreg(bws=bwyz0, tydat=y[z1==0 & r==1], txdat=xz10r1, exdat=x, regtype=rtype, ckertype="gaussian")$mean
+  eyz0par<-cbind(1,xpar)%*%coef(lm(y[z1==0 & r==1]~cbind(xpar)[z1==0 & r==1,]))
+
+  if (is.null(bwdz1)){
+    if (ruleofthumb!=1) bwdz1<-npregbw(ydat=factor(d[z1==1 ]), xdat=xz11, regtype="lc", ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bwdz1=npudensbw(dat=xz11, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  edz1=npreg(bws=bwdz1, tydat=factor(d[z1==1 ]), txdat=xz11, exdat=x, regtype="lc", ckertype="gaussian")$mean-1
+  edz1par<-pnorm(cbind(1,xpar)%*%coef(glm(d[z1==1 ]~cbind(xpar)[z1==1 ,], family = binomial(probit))))
+
+  if (is.null(bwyz0)){
+    if (ruleofthumb!=1) bwyz0<-npregbw(ydat=y[z1==0 ], xdat=xz10, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bwyz0=npudensbw(dat=xz10, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  edz0=npreg(bws=bwyz0, tydat=factor(d[z1==0 ]), txdat=xz10, exdat=x, regtype="lc", ckertype="gaussian")$mean-1
+  edz0par<-pnorm(cbind(1,xpar)%*%coef(glm(d[z1==0 ]~cbind(xpar)[z1==0 ,], family = binomial(probit))))
+
+  regd1=data.frame(z2[d==1],xd1); regd0=data.frame(z2[d==0],xd0); reg=data.frame(z2,x); n=length(d)
+  if (is.null(bwps)) {
+    if (ruleofthumb!=1) bwps<-npregbw(ydat=factor(z1), xdat=x, regtype="lc", ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bwps<-npudensbw(dat=x, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  Pz1=npreg(bws=bwps, tydat=factor(z1), txdat=x, regtype="lc", ckertype="gaussian")$mean-1
+  Pz1para=fitted(glm(z1~xpar, family=binomial(probit)))
+  dz1=d*z1
+  if (is.null(bwcox1)) {
+    if (ruleofthumb!=1) bwcox1<-npregbw(ydat=factor(dz1), xdat=x, regtype="lc", ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bwcox1<-npudensbw(dat=x, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  edz1=npreg(bws=bwcox1, tydat=factor(dz1), txdat=x, regtype="lc", ckertype="gaussian")$mean-1
+  edz1para=fitted(glm(dz1~xpar, family=binomial(probit)))
+  if (is.null(bwcox2)) {
+    if (ruleofthumb!=1) bwcox2<-npregbw(ydat=d, xdat=x, regtype="lc", ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bwcox2<-npudensbw(dat=x, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  ed=npreg(bws=bwcox2, tydat=factor(d), txdat=x, regtype="lc", ckertype="gaussian")$mean-1
+  edpara=fitted(glm(d~xpar, family=binomial(probit)))
+
+  yphi=r*(z1-Pz1); yphi2=(z1-Pz1);
+  yphipara=r*(z1-Pz1para); yphi2para=(z1-Pz1para);
+  Pco=sum(d*z1/Pz1)/sum(z1/Pz1)-sum(d*(1-z1)/(1-Pz1))/sum((1-z1)/(1-Pz1));
+  Pcopara=sum(d*z1/Pz1para)/sum(z1/Pz1para)-sum(d*(1-z1)/(1-Pz1para))/sum((1-z1)/(1-Pz1para));
+
+  if (is.null(bw1)) {
+    if (ruleofthumb!=1) bw1<-npregbw(ydat=yphi[d==1], xdat=regd1, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw1<-npudensbw(dat=regd1, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  phi1a<-(npreg(bws=bw1, tydat=yphi[d==1], txdat=regd1, exdat=reg, regtype=rtype, ckertype="gaussian")$mean)
+  phi1apar<-cbind(1,z2,xpar)%*%coef(lm(yphipara[d==1]~z2[d==1]+cbind(xpar)[d==1,]))
+
+  if (is.null(bw2)) {
+    if (ruleofthumb!=1) bw2<-npregbw(ydat=yphi2[d==1], xdat=regd1, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw2<-bw1
+  }
+  phi1b<-(npreg(bws=bw2, tydat=yphi2[d==1], txdat=regd1, exdat=reg, regtype=rtype, ckertype="gaussian")$mean)
+  phi1bpar<-cbind(1,z2,xpar)%*%coef(lm(yphi2para[d==1]~z2[d==1]+cbind(xpar)[d==1,]))
+  phi1=phi1a/phi1b; phi1par=phi1apar/phi1bpar
+
+  if (is.null(bw3)) {
+    if (ruleofthumb!=1) bw3<-npregbw(ydat=yphi[d==0], xdat=regd0, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw3<-npudensbw(dat=regd0, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  phi0a<-(npreg(bws=bw3, tydat=yphi[d==0], txdat=regd0, exdat=reg, regtype=rtype, ckertype="gaussian")$mean)
+  phi0apar<-cbind(1,z2,xpar)%*%coef(lm(yphipara[d==0]~z2[d==0]+cbind(xpar)[d==0,]))
+
+  if (is.null(bw4)) {
+    if (ruleofthumb!=1) bw4<-npregbw(ydat=yphi2[d==0], xdat=regd0, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw4<-bw3
+  }
+  phi0b<-(npreg(bws=bw4, tydat=yphi2[d==0], txdat=regd0, exdat=reg, regtype=rtype, ckertype="gaussian")$mean)
+  phi0bpar<-cbind(1,z2,xpar)%*%coef(lm(yphi2para[d==0]~z2[d==0]+cbind(xpar)[d==0,]))
+
+  phi0=phi0a/phi0b; phi0par=phi0apar/phi0bpar
+
+  yrd=y*r*d*(z1-Pz1);yr1_d=y*r*(1-d)*(z1-Pz1)
+  yrdpar=y*r*d*(z1-Pz1para);yr1_dpar=y*r*(1-d)*(z1-Pz1para)
+  minselprob=max(min(phi1[is.na(phi1)==0]),min(phi0[is.na(phi0)==0]),0.01); maxselprob=min(max(phi1[is.na(phi1)==0]),max(phi0[is.na(phi0)==0]),1)
+  regphi1=data.frame(phi1,x); regphi0=data.frame(phi0,x); varx=x
+
+  if (is.null(bw5)) {
+    if (ruleofthumb!=1) bw5<-npregbw(ydat=yrd, xdat=regphi1, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw5<-npudensbw(dat=regphi1, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+  predval=seq(from=minselprob,to=maxselprob,length.out=numresprob)
+
+  eyrd=c(); eyrdpar=c(); coef1=lm(yrdpar~phi1par+xpar)$coef
+  for (i in 1:numresprob){
+    eyrd<-cbind(eyrd,npreg(bws=bw5, tydat=yrd, txdat=regphi1, exdat=data.frame(rep(predval[i],n),varx), regtype=rtype, ckertype="gaussian")$mean)
+    eyrdpar<-cbind(eyrdpar,cbind(1,predval[i],xpar)%*%coef1)
+  }
+
+  if (is.null(bw6)) {
+    if (ruleofthumb!=1) bw6<-npregbw(ydat=yr1_d, xdat=regphi0, regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+    if (ruleofthumb==1) bw6<-npudensbw(dat=regphi0, ckertype="gaussian", bwmethod="normal-reference")$bw
+  }
+
+  eyr1_d=c(); eyr1_dpar=c(); coef2=lm(yr1_dpar~phi0par+xpar)$coef
+  for (i in 1:numresprob){
+    eyr1_d<-cbind(eyr1_d, npreg(bws=bw6, tydat=yr1_d, txdat=regphi0, exdat=data.frame(rep(predval[i],n),varx), regtype=rtype, ckertype="gaussian")$mean)
+    eyr1_dpar<-cbind(eyr1_dpar, cbind(1,predval[i],xpar)%*%coef2)
+  }
+
+  if (estlate!=0) {
+    denom=(Pz1*(1-Pz1)*Pco); denom[denom<trim]=trim;
+    denompar=(Pz1para*(1-Pz1para)*Pcopara);  denompar[denompar<trim]=trim
+  }
+  if (estlate==0) {denom=( (edz1-ed*Pz1)); denom[denom<trim]=trim;
+  denompar=( (edz1para-edpara*Pz1para)); denompar[denompar<trim]=trim
+  }
+
+
+  late=c(); latepar=c()
+  for (i in 1:numresprob){
+    if (estlate!=0){
+      late=cbind(late, ((eyrd[,i]+eyr1_d[,i])/(denom*predval[i])))
+      latepar=cbind(latepar,((eyrdpar[,i]+eyr1_dpar[,i])/(denompar*predval[i])))
+    }
+    if (estlate==0){
+      # respective functions for the ATE
+      late=cbind(late, ((eyrd[,i]+eyr1_d[,i])/( denom*predval[i])))
+      latepar=cbind(latepar,((eyrdpar[,i]+eyr1_dpar[,i])/( denompar*predval[i])))
+    }
+  }
+
+  if (is.null(bw7)) {
+    if (ruleofthumb!=1) bw7<-npcdensbw(ydat=phi1[d==1], xdat=xd1, ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw7<-npcdensbw(ydat=phi1[d==1], xdat=xd1, ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+
+  if (is.null(bw8)) {
+    if (ruleofthumb!=1) bw8<-npcdensbw(ydat=phi1par[d==1], xdat=xd1, ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw8<-npcdensbw(ydat=phi1par[d==1], xdat=xd1, ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+  if (is.null(bw9)) {
+    if (ruleofthumb!=1) bw9<-npcdensbw(ydat=phi0[d==0], xdat=xd0, ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw9<-npcdensbw(ydat=phi0[d==0], xdat=xd0, ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+  if (is.null(bw10)) {
+    if (ruleofthumb!=1) bw10<-npcdensbw(ydat=phi0par[d==0], xdat=xd0, ckertype="gaussian", bwmethod="cv.ls")
+    if (ruleofthumb==1) bw10<-npcdensbw(ydat=phi0par[d==0], xdat=xd0, ckertype="gaussian", bwmethod="normal-reference")
+  }
+
+  grid=c(predval); lgrid=length(grid)
+  fphi1para=c(); fphi0para=c(); fphi1a=c(); fphi0a=c();
+  for (j in 1:lgrid){
+    fphi1para=rbind(fphi1para,npcdens(bws=bw8, tydat=phi1par[d==1], txdat=xd1, eydat=rep(grid[j],n), exdat=x)$condens)
+    fphi0para=rbind(fphi0para,npcdens(bws=bw10, tydat=phi0par[d==0], txdat=xd0, eydat=rep(grid[j],n), exdat=x)$condens)
+    fphi1a=rbind(fphi1a,npcdens(bws=bw7, tydat=phi1[d==1], txdat=xd1, eydat=rep(grid[j],n), exdat=x)$condens)
+    fphi0a=rbind(fphi0a,npcdens(bws=bw9, tydat=phi0[d==0], txdat=xd0, eydat=rep(grid[j],n), exdat=x)$condens)
+  }
+
+  if (wgtfct!=1 & wgtfct!=3){
+    wtemp=sqrt(1/fphi1a+1/fphi0a); wtemp[wtemp<trim]=trim
+    wgta=grid/wtemp
+    cx=colSums(wgta)
+    latetemp=mean(colSums(t(late)*(wgta/(rep(1,length(grid))%*%t(cx)))))
+
+    wtemppara=sqrt(1/fphi1para+1/fphi0para)
+    wtemppara[wtemppara<trim]=trim
+    wgtpara=grid/wtemppara
+    cxpar=colSums(wgtpara)
+    latepartemp=mean(colSums(t(latepar)*(wgtpara/(rep(1,length(grid))%*%t(cxpar)))))
+  }
+
+  if (wgtfct==1){
+    y1sq=(y^2)*r*d*((z1/Pz1^2)+(1-z1)/((1-Pz1)^2))
+    y0sq=(y^2)*r*(1-d)*((z1/Pz1^2)+(1-z1)/((1-Pz1)^2))
+    if (is.null(bw11)) {
+      if (ruleofthumb!=1) bw11=npregbw(ydat=y1sq, xdat=data.frame(phi1,x), regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+      if (ruleofthumb==1) bw11=npudensbw(dat=data.frame(phi1,x), ckertype="gaussian", bwmethod="normal-reference")$bw
+    }
+    if (is.null(bw12)) {
+      if (ruleofthumb!=1) bw12=npregbw(ydat=y0sq, xdat=data.frame(phi0,x), regtype=rtype, ckertype="gaussian", bwmethod="cv.ls")$bw
+      if (ruleofthumb==1) bw12=npudensbw(dat=data.frame(phi0,x), ckertype="gaussian", bwmethod="normal-reference")$bw
+    }
+    lambda1a=c(); lambda0a=c();
+    for (j in 1:lgrid){
+      lambda1a=rbind(lambda1a,npreg(bws=bw11, tydat=y1sq, txdat=data.frame(phi1,x), exdat=data.frame(rep(grid[j],n),x), regtype=rtype, ckertype="gaussian")$mean)
+      lambda0a=rbind(lambda0a,npreg(bws=bw12, tydat=y0sq, txdat=data.frame(phi0,x), exdat=data.frame(rep(grid[j],n),x), regtype=rtype, ckertype="gaussian")$mean)
+    }
+    wgttemp=sqrt(lambda1a/fphi1a+lambda0a/fphi0a); wgttemp[wgttemp<trim]=trim
+    wgta=grid/wgttemp
+    ind=rowSums(is.na(wgta))
+    wgta=wgta[ind==0,]
+    cx=colSums(wgta)
+    latetemp=mean(colSums(t(late[,ind==0])*(wgta/(rep(1,length(grid[ind==0]))%*%t(cx)))))
+
+    y1sqpar=(y^2)*r*d*((z1/Pz1para^2)+(1-z1)/((1-Pz1para)^2))
+    y0sqpar=(y^2)*r*(1-d)*((z1/Pz1para^2)+(1-z1)/((1-Pz1para)^2))
+    temp=lm(y1sqpar~cbind(phi1par,xpar)); temp2=lm(y0sqpar~cbind(phi0par,xpar));
+    lambda0para=c(); lambda1para=c()
+    for (j in 1:lgrid){
+      lambda0para=rbind(lambda0para, t(cbind(1,rep(grid[j],n),xpar)%*%coef(temp2)))
+      lambda1para=rbind(lambda1para, t(cbind(1,rep(grid[j],n),xpar)%*%coef(temp)))
+    }
+    wgttemppara=sqrt(lambda1para/fphi1para+lambda0para/fphi0para); wgttemppara[wgttemppara<trim]=trim
+    wgtpara=grid/wgttemppara
+    cxpar=colSums(wgtpara)
+    latepartemp=mean(colSums(t(latepar)*(wgtpara/(rep(1,length(grid))%*%t(cxpar)))))
+  }
+
+  if (wgtfct==3){
+    latetemp=c(); latepartemp=c()
+    for (j in 1:n){
+      latetemp=c(latetemp, median(late[j,is.na(late[j,])==0]))
+      latepartemp=c(latepartemp, median(latepar[j,is.na(latepar[j,])==0]))
+    }
+    latetemp=mean(latetemp); latepartemp=mean(latepartemp)
+  }
+
+  catenaive=(eyz1-eyz0)/(edz1-edz0)
+  catenaivepar=(eyz1par-eyz0par)/(edz1par-edz0par)
+
+  if (estlate!=0){
+    itt=sum(r*y *z1 /(pres*Pz1) )/sum(r*z1 /(pres*Pz1) )-sum(r*y *(1-z1 )/(pres*(1-Pz1) ))/sum(r*(1-z1 )/(pres*(1-Pz1) ));
+    ittpara=sum(r*y *z1 / (prespara*Pz1para) )/sum(r*z1 / (prespara*Pz1para) )-sum(r*y *(1-z1 )/ (prespara*(1-Pz1para )))/sum(r*(1-z1 )/(prespara*(1-Pz1para) ));
+    Pco=sum(d *z1 /Pz1 )/sum(z1 /Pz1 )-sum(d*(1-z1 )/(1-Pz1 ))/sum((1-z1 )/(1-Pz1 )); n=length(r)
+    Pcopara=sum(d *z1 /Pz1para )/sum(z1 /Pz1para )-sum(d *(1-z1 )/(1-Pz1para ))/sum((1-z1 )/(1-Pz1para ));
+    latenaive=itt/Pco; latenaivepar=ittpara/Pcopara;
+  }
+  if (estlate==0){
+    latenaive=mean(catenaive*r/pres)
+    latenaivepar=mean(catenaivepar*r/prespara)
+    latenaive=mean(catenaive)
+    latenaivepar=mean(catenaivepar)
+  }
+  list(late=latetemp, latepar=latepartemp, latenaive=latenaive, latenaivepar=latenaivepar, phi1=phi1, phi1par=phi1par, phi0=phi0, phi0par=phi0par, bres1=bres1, bres0=bres0,  bwyz1=bwyz1, bwdz1=bwdz1, bwyz0=bwyz0, bwdz0=bwdz0, bwps=bwps, bwcox1=bwcox1, bwcox2=bwcox2, bw1=bw1, bw2=bw2, bw3=bw3, bw4=bw4, bw5=bw5, bw6=bw6)
+}
+
+
+latenonrespxxfct<-function(y,d,r,z1,z2, x=NULL, xpar=NULL, bres1=NULL, bres0=NULL,  bwyz1=NULL, bwdz1=NULL, bwyz0=NULL, bwdz0=NULL, bwps=NULL, bwcox1=NULL, bwcox2=NULL, bw1=NULL, bw2=NULL, bw3=NULL, bw4=NULL, bw5=NULL, bw6=NULL, bw7=NULL, bw8=NULL, bw9=NULL, bw10=NULL, bw11=NULL, bw12=NULL, ruleofthumb=1, wgtfct=2, rtype="ll", numresprob=100, estlate=TRUE, trim=0.01){
+  if ((is.null(x)==0) & (is.null(xpar)==0)) out=latenonrespxx(y=y,d=d,r=r,z1=z1,z2=z2, x=x, xpar=xpar, bres1=bres1, bres0=bres0,  bwyz1=bwyz1, bwdz1=bwdz1, bwyz0=bwyz0, bwdz0=bwdz0, bwps=bwps, bwcox1=bwcox1, bwcox2=bwcox2, bw1=bw1, bw2=bw2, bw3=bw3, bw4=bw4, bw5=bw5, bw6=bw6,  bw7=bw7, bw8=bw8, bw9=bw9, bw10=bw10, bw11=bw11, bw12=bw12, ruleofthumb=ruleofthumb, wgtfct=wgtfct, rtype=rtype, numresprob=numresprob, estlate=estlate, trim=trim)
+  if (is.null(x) | is.null(xpar)) out=latenonresp(y=y,d=d,r=r,z1=z1,z2=z2, bw1=bw1, bw2=bw2, bw3=bw3, bw4=bw4, bw5=bw5, bw6=bw6,   bw7=bw7, bw8=bw8, bw9=bw9, bw10=bw10, bw11=bw11, bw12=bw12, ruleofthumb=ruleofthumb, wgtfct=wgtfct, rtype=rtype, numresprob=numresprob, trim=trim)
+  results=c(out$late, out$latepar, out$latenaive, out$latenaivepar)
+  list(results=results, bres1=out$bres1, bres0=out$bres0,  bwyz1=out$bwyz1, bwdz1=out$bwdz1, bwyz0=out$bwyz0, bwdz0=out$bwdz0, bwps=out$bwps, bwcox1=out$bwcox1, bwcox2=out$bwcox2, bw1=out$bw1, bw2=out$bw2, bw3=out$bw3, bw4=out$bw4, bw5=out$bw5, bw6=out$bw6, phi1=out$phi1, phi1par=out$phi1par, phi0=out$phi0, phi0par=out$phi0par)
+}
+
+bootstrap.late.nr<-function(y,d,r,z1,z2, x=NULL, xpar=NULL, bres1=NULL, bres0=NULL,  bwyz1=NULL, bwdz1=NULL, bwyz0=NULL, bwdz0=NULL, bwps=NULL, bwcox1=NULL, bwcox2=NULL, bw1=NULL, bw2=NULL, bw3=NULL, bw4=NULL, bw5=NULL, bw6=NULL, bw7=NULL, bw8=NULL, bw9=NULL, bw10=NULL, bw11=NULL, bw12=NULL, ruleofthumb=1, wgtfct=2, rtype="ll", numresprob=100, boot=1999, estlate=TRUE, trim=0.01){
+  mc=c(); temp=c(); j=1
+  while(j<=boot){
+    sboot<-sample(1:length(d),length(d),TRUE)
+    z1b<-z1[sboot]; z2b<-z2[sboot]; db<-d[sboot]; yb=y[sboot]; rb=r[sboot]
+    if ((is.null(x)==0) & (is.null(xpar)==0)) {
+      if (length(x)==length(d)) xb<-x[sboot]
+      if (length(x)!=length(d)) xb<-x[sboot,]
+      if (length(xpar)==length(d)) xparb<-xpar[sboot]
+      if (length(xpar)!=length(d)) xparb<-xpar[sboot,]
+      temp<-latenonrespxxfct(y=yb,d=db,r=rb,z1=z1b,z2=z2b, x=xb, xpar=xparb, bres1=bres1, bres0=bres0,  bwyz1=bwyz1, bwdz1=bwdz1, bwyz0=bwyz0, bwdz0=bwdz0, bwps=bwps, bwcox1=bwcox1, bwcox2=bwcox2, bw1=bw1, bw2=bw2, bw3=bw3, bw4=bw4, bw5=bw5, bw6=bw6,  bw7=bw7, bw8=bw8, bw9=bw9, bw10=bw10, bw11=bw11, bw12=bw12, ruleofthumb=ruleofthumb, wgtfct=wgtfct, rtype=rtype, numresprob=numresprob, estlate=estlate, trim=trim)$results
+    }
+    if (is.null(x) | is.null(x)) {
+      temp<-latenonrespxxfct(y=yb,d=db,r=rb,z1=z1b,z2=z2b, x=NULL, xpar=NULL, bwps=NULL, bwcox1=NULL, bwcox2=NULL, bw1=bw1, bw2=bw2, bw3=bw3, bw4=bw4, bw5=bw5, bw6=bw6, bw7=bw7, bw8=bw8, bw9=bw9, bw10=bw10, bw11=bw11, bw12=bw12, ruleofthumb=ruleofthumb, wgtfct=wgtfct, rtype=rtype, numresprob=numresprob, trim=trim)$results
+    }
+    if (is.na(sum(temp))==0){
+      mc<-rbind(mc,temp)
+      j=j+1
+    }
+  }
+  mc
+}
+
 
