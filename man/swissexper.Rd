@@ -38,6 +38,5 @@ on callback rates (invitations to interviews, assessment centers, or trial appre
 }
 \references{
 Fernandes, A., Huber, M., and Plaza, C. (2019): "The Effects of Gender and Parental Occupation in the Apprenticeship Market: An Experimental Evaluation", SES working paper 506, University of Fribourg.
-View(swissexper)
 }
 \keyword{datasets}

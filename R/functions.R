@@ -1149,6 +1149,40 @@ hdtreat=function(y,d,x,s=NULL, trim=0.01, MLmethod="lasso", k=3){
 }
 
 
+# ATE ESTIMATION WITH SAMPLE SELECTION BASED ON DML
+hdseltreat=function(y,d,x,s, z, trim=0.01, MLmethod="lasso", k=3, selected=0){
+  ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)  # check if binary outcome
+  x=data.frame(x)
+  stepsize=ceiling((1/k)*length(d))
+  set.seed(1); idx= sample(length(d), replace=FALSE)
+  score=c();
+  # crossfitting procedure that splits sample in training an testing data
+  for (i in 1:k){
+    tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
+    trsample=idx[-tesample]
+    if (is.null(z)) {
+      g=MLfunct(y=s[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
+      gte=predict(g, x[tesample,], onlySL = TRUE)$pred  # predict selection model under MAR
+     }
+    if (is.null(z)==0) {
+      xz=data.frame(x,z)
+      g=MLfunct(y=s[trsample], x=xz[trsample,], MLmethod=MLmethod,  ybin=1)
+      gte=predict(g, xz[tesample,], onlySL = TRUE)$pred # predict selection model based on instrument
+      }
+    ps=MLfunct(y=d[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
+    pste=predict(ps, x[tesample,], onlySL = TRUE)$pred     #predict propensity score in test data
+    eydx=MLfunct(y=y[trsample], x=x[trsample,], d1=d[trsample], MLmethod=MLmethod, ybin=ybin)
+    eydxte=predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
+    # observations not satisfying trimming restriction
+    if (selected!=1) trimmed=1*((pste*gte)<trim)
+    if (selected==1) trimmed=1*(pste<trim)
+    score=rbind(score, cbind(gte,d[tesample],y[tesample],eydxte,pste, s[tesample],trimmed))
+  }
+  score = score[order(idx),]
+  score
+}
+
+
 
 # LATE WITH ATTRITION
 

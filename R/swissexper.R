@@ -26,8 +26,6 @@
 #'   \item{gender_neutrality}{0=gender neutral job type; 1=female dominated job type; 2=male dominated type}
 #'   \item{company_activity}{scope of company's activity: 0=local; 1=national; 2=international}
 #'    }
-#' @importFrom utils View
 #' @docType data
 #' @references Fernandes, A., Huber, M., and Plaza, C. (2019): "The Effects of Gender and Parental Occupation in the Apprenticeship Market: An Experimental Evaluation", SES working paper 506, University of Fribourg.
-#' View(swissexper)
 "swissexper"

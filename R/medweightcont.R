@@ -1,5 +1,5 @@
 #' Causal mediation analysis with a continuous treatment based on weighting by the inverse of generalized propensity scores
-#' @description Causal mediation analysis (evaluation of natural direct and indirect effects) of a continuous treatment based on weighting by the inverse of generalized propensity scores as suggested in Hsu, Huber, Lee, and Pipoz (2018).
+#' @description Causal mediation analysis (evaluation of natural direct and indirect effects) of a continuous treatment based on weighting by the inverse of generalized propensity scores as suggested in Hsu, Huber, Lee, and Lettry (2020).
 #' @param y Dependent variable, must not contain missings.
 #' @param d Continuous treatment, must not contain missings.
 #' @param m Mediator(s), may be a scalar or a vector, must not contain missings.
