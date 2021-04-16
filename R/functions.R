@@ -821,12 +821,12 @@ bootstrap.did<-function(y,d,t, x=NULL,boot=1999,trim=0.05, cluster=NULL){
 
 
 
-hdmed=function(y,d,m,x,k=3, trim=0.05, order=1){
+hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE){
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
   if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
   stepsize=ceiling((1/k)*length(d))
   set.seed(1); idx= sample(length(d), replace=FALSE)
-  y1m0=c();y1m1=c();y0m0=c(); y0m1=c(); selall=c()
+  score=c(); selall=c()
   # crossfitting procedure that splits sample in training an testing data
   for (i in 1:k){
     tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
@@ -898,22 +898,31 @@ hdmed=function(y,d,m,x,k=3, trim=0.05, order=1){
 
     # predict score functions for E(Y(1,M(0))) in the test data
     eta10=(eymx11te*pm0te+eymx10te*(1-pm0te))
-    sel= 1*(((pdte*pm1te)>=trim) & ((1-pdte)>=trim)  & (pdte>=trim) &  (((1-pdte)*pm0te)>=trim)   )
-    temp=dte*pm0te/(pdte*pm1te)*(yte-eymx1te)+(1-dte)/(1-pdte)*(eymx1te- eta10 )+eta10
-    y1m0=c(y1m0, temp[sel==1])
-    # predict score functions for E(Y(1,M(1))) in the test data
-    temp=eyx1te + dte*(yte-eyx1te)/pdte
-    y1m1=c(y1m1,temp[sel==1])
-    # predict score functions for E(Y(0,M(1))) in the test data
     eta01=(eymx01te*pm1te+eymx00te*(1-pm1te))
-    temp=(1-dte)*pm1te/((1-pdte)*pm0te)*(yte-eymx0te)+dte/pdte*(eymx0te- eta01 )+eta01
-    y0m1=c(y0m1, temp[sel==1])
-    # predict score functions for E(Y0,M(0)) in the test data
-    temp=eyx0te + (1-dte)*(yte-eyx0te)/(1-pdte)
-    y0m0=c(y0m0, temp[sel==1])
+    sel= 1*(((pdte*pm1te)>=trim) & ((1-pdte)>=trim)  & (pdte>=trim) &  (((1-pdte)*pm0te)>=trim)   )
+    score=rbind(score, cbind(dte, pm0te, pdte, pm1te, yte, eymx1te, eta10, eyx1te, eymx0te, eta01, eyx0te))[sel==1,]
     selall=c(selall,sel)
   }
-  # average over the crossfitting steps
+  # compute scores
+  if (normalized==FALSE){
+    y1m0=score[,1]*score[,2]/(score[,3]*score[,4])*(score[,5]-score[,6])+(1-score[,1])/(1-score[,3])*(score[,6]-score[,7] )+score[,7]
+    y1m1=score[,8] + score[,1]*(score[,5]-score[,8])/score[,3]
+    y0m1=(1-score[,1])*score[,4]/((1-score[,3])*score[,2])*(score[,5]-score[,9])+score[,1]/score[,3]*(score[,9]-score[,10])+score[,10]
+    y0m0=score[,11] + (1-score[,1])*(score[,5]-score[,11])/(1-score[,3])
+  }
+  if (normalized!=FALSE){
+    nobs=nrow(score)
+    sumscores1=sum(score[,1]*score[,2]/(score[,3]*score[,4]))
+    sumscores2=sum((1-score[,1])/(1-score[,3]))
+    sumscores3=sum(score[,1]/score[,3])
+    sumscores4=sum((1-score[,1])*score[,4]/((1-score[,3])*score[,2]))
+    y1m0=(nobs*score[,1]*score[,2]/(score[,3]*score[,4])*(score[,5]-score[,6]))/sumscores1+(nobs*(1-score[,1])/(1-score[,3])*(score[,6]-score[,7]))/sumscores2+score[,7]
+    y1m1=score[,8] + (nobs*score[,1]*(score[,5]-score[,8])/score[,3])/sumscores3
+    y0m1=(nobs*(1-score[,1])*score[,4]/((1-score[,3])*score[,2])*(score[,5]-score[,9]))/sumscores4+(nobs*score[,1]/score[,3]*(score[,9]-score[,10]))/sumscores3+score[,10]
+    y0m0=score[,11] + (nobs*(1-score[,1])*(score[,5]-score[,11])/(1-score[,3]))/sumscores2
+  }
+
+  # compute mean potential outcomes
   my1m1=mean(y1m1); my0m1=mean(y0m1); my1m0=mean(y1m0); my0m0=mean(y0m0)
   # compute effects
   tot=my1m1-my0m0; dir1=my1m1-my0m1; dir0=my1m0-my0m0; indir1=my1m1-my1m0; indir0=my0m1-my0m0;
@@ -924,7 +933,7 @@ hdmed=function(y,d,m,x,k=3, trim=0.05, order=1){
 }
 
 # function for mediation with high dimensional covariates based on Bayes rule
-hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
+hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE){
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
   #generate higher order terms for lasso
     xm=cbind(x,m)
@@ -937,7 +946,7 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
     #nobs = min(4*stepsize,length(d)); set.seed(1); idx = sample(nobs);
     #sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];
     #sample3 = idx[(2*stepsize+1):(3*stepsize)]; sample4 = idx[(3*stepsize+1):nobs]
-  y1m0=c();y1m1=c();y0m0=c(); y0m1=c(); selall=c()
+    score=c(); selall=c()
   # crossfitting procedure that splits sample in training an testing data
   for (i in 1:3){
     if (i==1) {tesample=sample1; musample=sample2; deltasample=sample3}
@@ -1016,22 +1025,33 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE){
       }
     # select observations satisfying trimming restriction
     sel= 1*((((1-pmxte)*pxte)>=trim) & ((1-pxte)>=trim)  & (pxte>=trim) &  (((pmxte*(1-pxte)))>=trim)   )
-    # predict E(Y0,M(1)) in the test data
-    temp=((1-dte)*pmxte/((1-pmxte)*pxte)*(yte-eymx0te)+dte/pxte*(eymx0te-regweymx0te)+regweymx0te)
-    y0m1=c(y0m1,temp[sel==1])
-    # predict E(Y0,M(0)) in the test data
-    temp=(eyx0te + (1-dte)*(yte-eyx0te)/(1-pxte))
-    y0m0=c(y0m0,temp[sel==1])
-    # predict E(Y1,M(0)) in the test data
-    temp=(dte*(1-pmxte)/(pmxte*(1-pxte))*(yte-eymx1te)+(1-dte)/(1-pxte)*(eymx1te-regweymx1te)+regweymx1te)
-    y1m0=c(y1m0,temp[sel==1])
-    # predict E(Y1,M(1)) in the test data
-    temp=(eyx1te + dte*(yte-eyx1te)/pxte)
-    y1m1=c(y1m1,temp[sel==1])
+
+    #select elements of the score functions
+    score=rbind(score, cbind(dte, pmxte, pxte, yte, eymx0te, regweymx0te, eyx0te, eymx1te, regweymx1te, eyx1te)[sel==1,])
+
     # collect selection dummies
     selall=c(selall,sel)
   }
-  # average over the crossfitting steps
+
+  # compute scores for potential outcomes
+  if (normalized==FALSE) {
+    y0m1=((1-score[,1])*score[,2]/((1-score[,2])*score[,3])*(score[,4]-score[,5])+score[,1]/score[,3]*(score[,5]-score[,6])+score[,6])
+    y0m0=(score[,7] + (1-score[,1])*(score[,4]-score[,7])/(1-score[,3]))
+    y1m0=(score[,1]*(1-score[,2])/(score[,2]*(1-score[,3]))*(score[,4]-score[,8])+(1-score[,1])/(1-score[,3])*(score[,8]-score[,9])+score[,9])
+    y1m1=(score[,10] + score[,1]*(score[,4]-score[,10])/score[,3])
+  }
+  if (normalized!=FALSE) {
+    nobs=nrow(score)
+    sumscore1=sum((1-score[,1])*score[,2]/((1-score[,2])*score[,3]))
+    sumscore2=sum(score[,1]/score[,3])
+    sumscore3=sum((1-score[,1])/(1-score[,3]))
+    sumscore4=sum(score[,1]*(1-score[,2])/(score[,2]*(1-score[,3])))
+    y0m1=(nobs*(1-score[,1])*score[,2]/((1-score[,2])*score[,3])*(score[,4]-score[,5]))/sumscore1+(nobs*score[,1]/score[,3]*(score[,5]-score[,6]))/sumscore2+score[,6]
+    y0m0=score[,7] + (nobs*(1-score[,1])*(score[,4]-score[,7])/(1-score[,3]))/sumscore3
+    y1m0=(nobs*score[,1]*(1-score[,2])/(score[,2]*(1-score[,3]))*(score[,4]-score[,8]))/sumscore4+(nobs*(1-score[,1])/(1-score[,3])*(score[,8]-score[,9]))/sumscore3+score[,9]
+    y1m1=score[,10] + (nobs*score[,1]*(score[,4]-score[,10])/score[,3])/sumscore2
+  }
+  # compute mean potential outcomes
   my1m1=mean(y1m1); my0m1=mean(y0m1); my1m0=mean(y1m0); my0m0=mean(y0m0)
   # compute effects
   tot=my1m1-my0m0; dir1=my1m1-my0m1; dir0=my1m0-my0m0; indir1=my1m1-my1m0; indir0=my0m1-my0m0;
@@ -1319,8 +1339,6 @@ latenonresp=function(y,d,r,z1,z2, bw1=NULL, bw2=NULL, bw3=NULL, bw4=NULL, bw5=NU
     latetemp=median(late[is.na(late)==0])
     latepartemp=median(latepar[is.na(latepar)==0])
   }
-
-
 
   itt=sum(y[r==1]*z1[r==1]/Pz1)/sum(z1[r==1]/Pz1)-sum(y[r==1]*(1-z1[r==1])/(1-Pz1))/sum((1-z1[r==1])/(1-Pz1));
   Pco=sum(d[r==1]*z1[r==1]/Pz1)/sum(z1[r==1]/Pz1)-sum(d[r==1]*(1-z1[r==1])/(1-Pz1))/sum((1-z1[r==1])/(1-Pz1)); n=length(r)
@@ -1623,4 +1641,35 @@ bootstrap.late.nr<-function(y,d,r,z1,z2, x=NULL, xpar=NULL, bres1=NULL, bres0=NU
   mc
 }
 
+# function for RDD kernel regression with covariates
+rdd.x.est=function(y,z,x, bw0, bw1, regtype, bwz){
+  d=1*(z>=0)
+  xz=data.frame(x,z)
+  xzcutoff=data.frame(x,rep(0,length(d)))
+  xz0=xz[d==0,]; xz1=xz[d==1,]; d1=d[d==1]; d0=d[d==0]; y1=y[d==1]; y0=y[d==0];
+  reg0<-npreg(bws=bw0, tydat=y0, txdat=xz0, exdat=xzcutoff, ckertype="epanechnikov", regtype=regtype)$mean
+  reg1<-npreg(bws=bw1, tydat=y1, txdat=xz1, exdat=xzcutoff, ckertype="epanechnikov", regtype=regtype)$mean
+  kernwgt=npksum(bws=bwz, tydat=y, txdat=z, exdat=0, ckertype="epanechnikov", regtype="lc", return.kernel.weights=TRUE )$kw
+  mu2=0.1; mu1=3/16
+  kernwgt=(mu2-mu1*z)*kernwgt;
+  effect=(sum((reg1-reg0)*kernwgt))/(sum(kernwgt))
+  effect
+}
 
+# bootstrap function for RDD kernel regression with covariates
+rdd.x.boot<-function(y,z,x, bw0, bw1, bwz, boot=1999, regtype){
+  obs<-length(y)
+  mc=c(); i=1
+  while(i<=boot){
+    sboot<-sample(1:obs,obs,TRUE)
+    yb=y[sboot]
+    zb<-z[sboot]
+    if (length(x)==length(y)) xb<-x[sboot]
+    if (length(x)!=length(y)) xb<-x[sboot,]
+
+    est<-c(rdd.x.est(y=yb,z=zb,x=xb, bw0=bw0, bw1=bw1, regtype=regtype, bwz=bwz))
+    if (sum(is.na(est))==0) mc<-c(mc, est)
+    i=i+1
+  }
+  mc
+}

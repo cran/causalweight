@@ -13,7 +13,8 @@ medDML(
   trim = 0.05,
   order = 1,
   multmed = TRUE,
-  fewsplits = FALSE
+  fewsplits = FALSE,
+  normalized = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ medDML(
 \item{multmed}{If set to \code{TRUE}, a representation of direct and indirect effects that avoids conditional mediator densities/probabilities is used, see Farbmacher, Huber, Langen, and Spindler (2019). This method can incorporate multiple and/or continuous mediators. If \code{multmed} is \code{FALSE}, the representation of Tchetgen Tchetgen and Shpitser (2012) is used, which involves mediator densities. In this case, the mediator must be a binary scalar. Default of \code{multimed} is \code{TRUE}.}
 
 \item{fewsplits}{If set to \code{TRUE}, the same training data are used for estimating nested models of nuisance parameters, i.e. \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of nested models \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. This parameter is only relevant if \code{multmed} is \code{TRUE}. Default of \code{fewsplits} is \code{FALSE}.}
+
+\item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
 }
 \value{
 A medDML object contains two components, \code{results} and \code{ntrimmed}:

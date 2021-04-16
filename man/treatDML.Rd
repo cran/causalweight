@@ -13,7 +13,8 @@ treatDML(
   dcontrol = 0,
   trim = 0.01,
   MLmethod = "lasso",
-  k = 3
+  k = 3,
+  normalized = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ treatDML(
 \item{MLmethod}{Machine learning method for estimating the nuisance parameters based on the \code{SuperLearner} package. Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.}
 
 \item{k}{Number of folds in k-fold cross-fitting. Default is 3.}
+
+\item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
 }
 \value{
 A \code{treatDML} object contains eight components, \code{effect}, \code{se}, \code{pval}, \code{ntrimmed}, \code{meantreat}, \code{meancontrol}, \code{pstreat}, and \code{pscontrol}:

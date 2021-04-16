@@ -17,7 +17,8 @@ dyntreatDML(
   d2control = 0,
   trim = 0.01,
   MLmethod = "lasso",
-  fewsplits = FALSE
+  fewsplits = FALSE,
+  normalized = TRUE
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ dyntreatDML(
 \item{MLmethod}{Machine learning method for estimating the nuisance parameters based on the \code{SuperLearner} package. Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.}
 
 \item{fewsplits}{If set to \code{TRUE}, the same training data are used for estimating a nested model of conditional mean outcomes, namely \code{E[E[y2|d1,d2,x0,x1]|d1,x0]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of the nested model. Default of \code{fewsplits} is \code{FALSE}.}
+
+\item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
 }
 \value{
 A \code{dyntreatDML} object contains ten components, \code{effect}, \code{se}, \code{pval}, \code{ntrimmed}, \code{meantreat}, \code{meancontrol}, \code{psd1treat}, \code{psd2treat}, \code{psd1control}, and \code{psd2control} :
@@ -112,7 +115,7 @@ output$ntrimmed
 # The true effect of the treatment sequence is 1.5}
 }
 \references{
-Bodory, H., Huber, M., Laffers, L. (2020): "Double machine learning for (weighted) dynamic treatment effects", working paper, University of Fribourg.
+Bodory, H., Huber, M., Laffers, L. (2020): "Evaluating (weighted) dynamic treatment effects by double machine learning", working paper, arXiv preprint arXiv:2012.00370.
 
 Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 

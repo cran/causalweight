@@ -15,7 +15,8 @@ treatselDML(
   dcontrol = 0,
   trim = 0.01,
   MLmethod = "lasso",
-  k = 3
+  k = 3,
+  normalized = TRUE
 )
 }
 \arguments{
@@ -29,7 +30,7 @@ treatselDML(
 
 \item{z}{Optional instrumental variable(s) for selection \code{s}. If \code{NULL}, outcome selection based on observables (\code{x},\code{d}) - known as "missing at random" - is assumed. If \code{z} is defined, outcome selection based on unobservables - known as "non-ignorable missingness" - is assumed. Default is \code{NULL}.}
 
-\item{selected}{Must be 1 if ATE is to be estimated for the selected population without missing outcomes. Must be 0 if the ATE is to be selected for the total population. Default is 0 (ATE for total population). This parameter is ignored if \code{z} is \code{NULL} (under MAR, the ATE in the total population is estimated).}
+\item{selected}{Must be 1 if ATE is to be estimated for the selected population without missing outcomes. Must be 0 if the ATE is to be estimated for the total population. Default is 0 (ATE for total population). This parameter is ignored if \code{z} is \code{NULL} (under MAR, the ATE in the total population is estimated).}
 
 \item{dtreat}{Value of the treatment in the treatment group. Default is 1.}
 
@@ -40,6 +41,8 @@ treatselDML(
 \item{MLmethod}{Machine learning method for estimating the nuisance parameters based on the \code{SuperLearner} package. Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.}
 
 \item{k}{Number of folds in k-fold cross-fitting. Default is 3.}
+
+\item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
 }
 \value{
 A \code{treatDML} object contains eight components, \code{effect}, \code{se}, \code{pval}, \code{ntrimmed}, \code{meantreat}, \code{meancontrol}, \code{pstreat}, and \code{pscontrol}:

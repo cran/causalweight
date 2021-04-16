@@ -20,10 +20,8 @@
 #' \dontrun{
 #' #load data
 #' data(games)
-#' #generate missing indicator
-#' mis=1*(apply(is.na(games),1,sum)>0)
 #' #select non-missing observations
-#' games_nomis=games[mis==0,]
+#' games_nomis=na.omit(games)
 #' #turn year into a factor variable
 #' games_nomis$year=factor(games_nomis$year)
 #' #attach data
