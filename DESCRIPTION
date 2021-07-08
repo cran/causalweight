@@ -1,7 +1,7 @@
 Package: causalweight
 Title: Estimation Methods for Causal Inference Based on Inverse
         Probability Weighting
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: 
     c(person(given = "Hugo",
              family = "Bodory",
@@ -25,8 +25,8 @@ Imports: mvtnorm, np, LARF, hdm, SuperLearner, glmnet, xgboost, e1071,
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-04-16 14:13:57 UTC; HBodory
+Packaged: 2021-07-08 07:36:14 UTC; HBodory
 Author: Hugo Bodory [aut, cre] (<https://orcid.org/0000-0002-3645-1204>),
   Martin Huber [aut] (<https://orcid.org/0000-0002-8590-9402>)
 Repository: CRAN
-Date/Publication: 2021-04-16 15:00:02 UTC
+Date/Publication: 2021-07-08 09:30:05 UTC

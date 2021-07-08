@@ -56,7 +56,7 @@ Sharp regression discontinuity design conditional on covariates to control for o
 # load unemployment duration data
 data(ubduration)
 # run sharp RDD conditional on covariates with user-defined bandwidths
-RDDcovar(y=ubduration[,1],z=ubduration[,2],x=ubduration[,c(-1,-2)],
+output=RDDcovar(y=ubduration[,1],z=ubduration[,2],x=ubduration[,c(-1,-2)],
  bw0=c(0.17, 1, 0.01, 0.05, 0.54, 70000, 0.12, 0.91, 100000),
  bw1=c(0.59, 0.65, 0.30, 0.06, 0.81, 0.04, 0.12, 0.76, 1.03),bwz=0.2,boot=19)
 cat("RDD effect estimate: ",round(c(output$effect),3),", standard error: ",

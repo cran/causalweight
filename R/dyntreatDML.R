@@ -94,7 +94,7 @@ dyntreatDML=function(y2,d1,d2,x0,x1, s=NULL, d1treat=1, d2treat=1, d1control=0, 
   meantreat=mean(tscores)
   meancontrol=mean(cscores)
   effect=meantreat - meancontrol
-  se=sqrt(mean((tscores-cscores-effect)^2)/sum(tscores))
+  se=sqrt(mean((tscores-cscores-effect)^2)/length(tscores))
   pval= 2*pnorm((-1)*abs(effect/se))
   list(effect=effect, se=se, pval=pval, ntrimmed=sum(trimmed), meantreat=meantreat, meancontrol=meancontrol, psd1treat=scorestreat[,6], psd2treat=scorestreat[,7], psd1control=scorescontrol[,6], psd2control=scorescontrol[,7])
 }

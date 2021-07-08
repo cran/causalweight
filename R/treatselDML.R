@@ -81,7 +81,7 @@ treatselDML=function(y,d,x,s,z=NULL, selected=0, dtreat=1, dcontrol=0, trim=0.01
   meantreat=mean(tscores)
   meancontrol=mean(cscores)
   effect=meantreat - meancontrol
-  se=sqrt(mean((tscores-cscores-effect)^2)/sum(tscores))
+  se=sqrt(mean((tscores-cscores-effect)^2)/length(tscores))
   pval= 2*pnorm((-1)*abs(effect/se))
   list(effect=effect, se=se, pval=pval, ntrimmed=sum(trimmed), meantreat=meantreat, meancontrol=meancontrol, pstreat=scorestreat[,5], pscontrol=scorescontrol[,5])
 }
