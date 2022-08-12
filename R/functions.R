@@ -1173,26 +1173,40 @@ hdtreat=function(y,d,x,s=NULL, trim=0.01, MLmethod="lasso", k=3){
 hdseltreat=function(y,d,x,s, z, trim=0.01, MLmethod="lasso", k=3, selected=0){
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)  # check if binary outcome
   x=data.frame(x)
-  stepsize=ceiling((1/k)*length(d))
-  set.seed(1); idx= sample(length(d), replace=FALSE)
+  dx=data.frame(d,x)
   score=c();
   # crossfitting procedure that splits sample in training an testing data
-  for (i in 1:k){
-    tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
-    trsample=idx[-tesample]
+  stepsize=ceiling((1/3)*length(y))
+    nobs = min(3*stepsize,length(y)); set.seed(1); idx = sample(nobs);
+    sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)]; sample3 = idx[(2*stepsize+1):nobs];
+    for (i in 1:3){
+      if (i==3) {trsample1=sample1; trsample2=sample2; tesample=sample3}
+      if (i==1) {trsample1=sample2; trsample2=sample3; tesample=sample1}
+      if (i==2) {trsample1=sample3; trsample2=sample1; tesample=sample2}
+      # total training sample
+      trsample=c(trsample1,trsample2)
+      ytr=y[trsample]; xtr=x[trsample,]; dtr=d[trsample]; str=s[trsample]; xte=x[tesample,]
     if (is.null(z)) {
-      g=MLfunct(y=s[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
-      gte=predict(g, x[tesample,], onlySL = TRUE)$pred  # predict selection model under MAR
+      g=MLfunct(y=str, x=dx[trsample,], MLmethod=MLmethod,  ybin=1)
+      gte=predict(g, dx[tesample,], onlySL = TRUE)$pred  # predict selection model under MAR
+      ps=MLfunct(y=dtr, x=xtr, MLmethod=MLmethod,  ybin=1)
+      pste=predict(ps, xte, onlySL = TRUE)$pred     #predict propensity score in test data
+      eydx=MLfunct(y=ytr[str==1], x=xtr[str==1,], d1=dtr[str==1], MLmethod=MLmethod, ybin=ybin)
+      eydxte=predict(eydx, xte, onlySL = TRUE)$pred  #predict conditional outcome in test data
      }
     if (is.null(z)==0) {
-      xz=data.frame(x,z)
-      g=MLfunct(y=s[trsample], x=xz[trsample,], MLmethod=MLmethod,  ybin=1)
-      gte=predict(g, xz[tesample,], onlySL = TRUE)$pred # predict selection model based on instrument
+      dxz=data.frame(dx,z)
+      g=MLfunct(y=s[trsample1], x=dxz[trsample1,], MLmethod=MLmethod,  ybin=1)
+      gtotal=predict(g, dxz, onlySL = TRUE)$pred # predict selection model based on instrument
+      gte=gtotal[tesample]
+      xg=data.frame(x,gtotal)
+      xgtr=xg[trsample2,]; xgte=xg[tesample,]
+      ytr2=y[trsample2]; dtr2=d[trsample2]; str2=s[trsample2];
+      ps=MLfunct(y=dtr2, x=xgtr, MLmethod=MLmethod,  ybin=1)
+      pste=predict(ps, xgte, onlySL = TRUE)$pred     #predict propensity score in test data
+      eydx=MLfunct(y=ytr2[str2==1], x=xgtr[str2==1,], d1=dtr2[str2==1], MLmethod=MLmethod, ybin=ybin)
+      eydxte=predict(eydx, xgte, onlySL = TRUE)$pred  #predict conditional outcome in test data
       }
-    ps=MLfunct(y=d[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
-    pste=predict(ps, x[tesample,], onlySL = TRUE)$pred     #predict propensity score in test data
-    eydx=MLfunct(y=y[trsample], x=x[trsample,], d1=d[trsample], MLmethod=MLmethod, ybin=ybin)
-    eydxte=predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
     # observations not satisfying trimming restriction
     if (selected!=1) trimmed=1*((pste*gte)<trim)
     if (selected==1) trimmed=1*(pste<trim)
