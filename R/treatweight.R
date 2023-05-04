@@ -57,6 +57,7 @@
 #' @export
 treatweight<-function(y,d,x, s=NULL, z=NULL, selpop=FALSE, ATET=FALSE, trim=0.05, logit=FALSE, boot=1999, cluster=NULL){
   if (is.null(s)==FALSE) y[s==0]=0
+  x=as.matrix(x)
   temp=ipw(y=y,d=d,x=x, s=s, z=z, selpop=selpop, trim=trim, ATET=ATET, logit=logit)
   temp2=bootstrap.ipw(y=y,d=d,x=x,s=s, z=z, selpop=selpop, boot=boot,trim=trim, ATET=ATET, logit=logit, cluster=cluster)
   se=sd(temp2[,1])

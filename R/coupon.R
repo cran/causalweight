@@ -1,0 +1,18 @@
+#' Data on daily spending and coupon receipt (selective subsample)
+#' This data set is a selective subsample of the data set "couponsretailer" which was constructed for illustrative purposes.
+#'
+#' @format A data frame with 1293 rows and 9 variables:
+#' \describe{
+#'   \item{dailyspending}{outcome: customer's daily spending at the retailer in a specific period}
+#'   \item{coupons}{treatment: 1 = customer received at least one coupon in that period; 0 = customer did not receive any coupon}
+#'   \item{coupons_preperiod}{coupon reception in previous period: 1 = customer received at least one coupon; 0 = customer did not receive any coupon}
+#'   \item{dailyspending_preperiod}{daily spending at the retailer in previous period}
+#'   \item{income_bracket}{income group: 1 = lowest to 12 = highest}
+#'   \item{age_range}{age of customer: 1 = 18-25; 2 = 26-35; 3 = 36-45; 4 = 46-55; 5 = 56-70; 6 = 71 plus}
+#'   \item{married}{marital status: 1 = married; 0 = unmarried}
+#'   \item{rented}{dwelling type: 1 = rented; 0 = owned}
+#'   \item{family_size}{number of family members: 1 = 1; 2 = 2; 3 = 3; 4 = 4; 5 = 5 plus}
+#'    }
+#' @docType data
+"coupon"
+

@@ -1,3 +1,137 @@
+hdtreat_newscore = function(y, d, x, MLmethod = "lasso", k = 3, zeta, seed){
+  ybin <- 1*(length(unique(y))==2 & min(y)==0 & max(y)==1)  # check if binary outcome
+  x <- data.frame(x)
+  stepsize <- ceiling((1/k)*length(d))
+  set.seed(seed)
+  idx <- sample(length(d), replace=FALSE)
+  score <- c()
+  # cross-fitting procedure that splits sample in training and testing data
+  for (i in 1:k){
+    tesample <- idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
+    trsample <- idx[-tesample]
+    eydx <- MLfunct(y = y[trsample], x = x[trsample,], d1 = d[trsample], MLmethod = MLmethod, ybin = ybin)
+    eydxte <- predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
+    score <- rbind(score, cbind(d[tesample],y[tesample],eydxte,zeta[tesample]))
+  }
+  score <- score[order(idx),]
+  score
+}
+
+treatDML_newscore = function(y, d, x, dtreat = 1, dcontrol = 0,
+  MLmethod = "lasso", k = 3, zeta_sigma = 0.5, seed = 123){
+  n <- dim(x)[1]
+  zeta <- rnorm(n,0,sd = zeta_sigma) # sample from a normal distribution to avoid degenerated distribution
+  dtre <- 1*(d==dtreat)
+  dcon <- 1*(d==dcontrol)
+  scorestreat <- hdtreat_newscore(y = y,d = dtre, x = x, MLmethod = MLmethod, k = k, zeta = zeta, seed = seed)
+  scorescontrol <- hdtreat_newscore(y = y, d = dcon, x = x, MLmethod = MLmethod, k = k ,zeta = zeta, seed = seed)
+  tscores <- scorestreat[,3]
+  cscores <- scorescontrol[,3]
+  meantreat <- mean(tscores)
+  meancontrol <- mean(cscores)
+  effect <- mean((tscores - cscores)^2+scorestreat[,4])
+  se <- sqrt((mean(((tscores-cscores)^2-effect)^2)+var(scorestreat[,4]))/length(tscores))
+  pval <- 2*pnorm((-1)*abs(effect/se))
+  list(effect = effect, se = se, pval = pval, meantreat = meantreat,
+    meancontrol = meancontrol)
+}
+
+computescores = function(Y,X,D){
+  pscoreforest <- regression_forest(X = X,Y = c(D), num.trees = 200)
+  pscore <- predict(pscoreforest,X)$predictions
+  yforest1 <- regression_forest(X = X[D==1,], Y = Y[D==1], num.trees = 200)
+  condy1 <- predict(yforest1,X)$predictions
+  yforest0 <- regression_forest(X = X[D==0,], Y = Y[D==0], num.trees = 200)
+  condy0 <- predict(yforest0,X)$predictions
+  n <- length(D)
+  weightsum1 <- sum(D/pscore)
+  weightsum0 <- sum((1-D)/(1-pscore))
+  scores1 <- (n*D*(Y-condy1)/(pscore))/weightsum1+(condy1)
+  scores0 <- (n*(1-D)*(Y-condy0)/(1-pscore))/weightsum0+(condy0)
+  c(scores1-scores0)
+}
+
+# uniform inference using the doubly robust score based on bootstrap:
+
+treatDML_bootstrap=function(y,d,x, dtreat = 1, dcontrol = 0, seed = 123, s = NULL, normalized = TRUE, trim = 0.01,
+  MLmethod = "lasso", k = 3, B = 2000, importance = 0.95, alpha = 0.1, share = 0.5){
+  # add sample split
+  idx <- sample(length(d),length(d)*share,replace=FALSE)
+  d1 <- d[idx]
+  d2 <- d[-idx]
+  y1 <- y[idx]
+  y2 <- y[-idx]
+  x1 <- x[idx,]
+  x2 <- x[-idx,]
+  # determine subsets with large heterogeneity
+  scorestr <- computescores(Y = y1, X = x1, D = d1)
+  data1 <- data.frame(scorestr,x1)
+  randomf <- ranger(scorestr~., data = data1, num.trees = 200)
+  quantilevariable <- which(ranger::importance(randomf)>=quantile(ranger::importance(randomf),importance))
+  quantilevariable <-  quantilevariable - 1 # because of the intercept!
+  nm <- length(quantilevariable)
+  index <- matrix(NA,length(y2),2*nm)
+  for (j in 1:nm){
+    index[,2*j-1] <- x2[,quantilevariable[j]]<quantile(x2[,quantilevariable[j]],0.5) # define subsets
+    index[,2*j] <- x2[,quantilevariable[j]]>=quantile(x2[,quantilevariable[j]],0.5)
+  }
+  # bootstrap
+  M <- dim(index)[2]
+  n2 <- length(y2)
+  bootscore <- matrix(NA,n2,M)
+  results_effect <- rep(NA,M)
+  results_pval <- rep(NA,M)
+  results_est <- rep(NA,M)
+  samplesize_subgroup <- rep(NA,M)
+  # estimation using DR score for each subset (using other part of data)
+  for (m in 1:M){
+    dtre <- 1*(d2[index[,m]]==dtreat)
+    dcon <- 1*(d2[index[,m]]==dcontrol)
+    scorestreat <- hdtreat(y = y2[index[,m]], d = dtre, x = x2[index[,m],], s = s, trim = trim, MLmethod = MLmethod, k = k)
+    scorescontrol <- hdtreat(y = y2[index[,m]], d = dcon, x = x2[index[,m],], s = s, trim = trim, MLmethod = MLmethod,k = k)
+    trimmed <- 1*(scorescontrol[,7]+scorestreat[,7]>0)  #number of trimmed observations
+    scorestreat <- scorestreat[trimmed==0,]
+    scorescontrol <- scorescontrol[trimmed==0,]
+    if (normalized==FALSE){
+      tscores <- (scorestreat[,1]*scorestreat[,2]*(scorestreat[,3]-scorestreat[,4])/(scorestreat[,5])+scorestreat[,6]*scorestreat[,4])/mean(scorestreat[,6])
+      cscores <- (scorescontrol[,1]*scorescontrol[,2]*(scorescontrol[,3]-scorescontrol[,4])/(scorescontrol[,5])+scorescontrol[,6]*scorescontrol[,4])/mean(scorescontrol[,6])
+    }
+    if (normalized!=FALSE){
+      ntreat <- nrow(scorestreat)
+      weightsumtreat <- sum(scorestreat[,1]*scorestreat[,2]/(scorestreat[,5]))
+      tscores <- (ntreat*scorestreat[,1]*scorestreat[,2]*(scorestreat[,3]-scorestreat[,4])/(scorestreat[,5]))/weightsumtreat+(scorestreat[,6]*scorestreat[,4])/mean(scorestreat[,6])
+      ncontrol <- nrow(scorescontrol)
+      weightsumcontrol <- sum(scorescontrol[,1]*scorescontrol[,2]/(scorescontrol[,5]))
+      cscores <- (ncontrol*scorescontrol[,1]*scorescontrol[,2]*(scorescontrol[,3]-scorescontrol[,4])/(scorescontrol[,5]))/weightsumcontrol+(scorescontrol[,6]*scorescontrol[,4])/mean(scorescontrol[,6])
+    }
+    meantreat <- mean(tscores)
+    meancontrol <- mean(cscores)
+    effect <- meantreat - meancontrol
+    se <- sqrt(mean((tscores-cscores-effect)^2))
+    pval <- 2*pnorm((-1)*abs(sqrt(length(tscores))*effect/se))
+    results_est[m] <- sqrt(length(tscores))*se^{-1}*abs(effect)
+    results_effect[m] <- effect
+    results_pval[m] <- pval
+    bootscore[1:length(tscores),m] <- se^(-1)*((tscores-cscores)-effect)
+    samplesize_subgroup[m] <- length(tscores)
+  }
+  process <- matrix(NA,B,M)
+  sup_bootstrap_max <- rep(NA,B)
+  sup_bootstrap_L2 <- rep(NA,B)
+  for (b in 1:B){
+    epsilon <- rnorm(n2)
+    for (m in 1:M){
+      process[b,m] <- apply(matrix(bootscore[,m]),2,function(x) samplesize_subgroup[m]^(-1/2)*sum(epsilon*x,na.rm=T))
+    }
+    sup_bootstrap_max[b] <- max(abs(process[b,]))
+    sup_bootstrap_L2[b] <- sqrt(sum(process[b,]^2))
+  }
+  reject_max <- max(results_est)>quantile(sup_bootstrap_max,1-alpha)
+  reject_L2 <- sqrt(sum(results_est^2))>quantile(sup_bootstrap_L2,1-alpha)
+  reject_standard <- sum(results_est>qnorm(1-(alpha/(2*M))))>=1
+  list(test_reject = reject_max, effect = results_effect, pval = results_pval, test_standard = reject_standard, test_L2 = reject_L2)
+}
+
 mediation<-function(y,d,m,x,w=NULL,s=NULL,z=NULL, selpop=FALSE, trim=0.05, ATET=FALSE, logit=FALSE){
   if (is.null(w)==TRUE){
     if (logit==FALSE){

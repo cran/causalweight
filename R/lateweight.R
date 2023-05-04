@@ -41,6 +41,7 @@
 #' @import mvtnorm
 #' @export
 lateweight<-function(y,d,z,x, LATT=FALSE, trim=0.05, logit=FALSE, boot=1999, cluster=NULL){
+  x=as.matrix(x)
   temp=late(y=y,d=d,z=z, x=x,trim=trim, LATT=LATT, logit=logit)
   ntrimmed=temp[length(temp)]
   temp=temp[1:(length(temp)-1)]
