@@ -1,0 +1,74 @@
+#' Swedish municipalities
+#'
+#' A dataset containing information on Swedish municipalities in the years 1996-2004
+#'
+#' @format A data frame with 2511 rows and 53 variables:
+#' \describe{
+#'   \item{code}{Municipality code}
+#'   \item{year}{Year}
+#'   \item{municipality}{Minicipality name}
+#'   \item{pop_1}{Population, lagged 1 year}
+#'   \item{pop}{Population}
+#'   \item{partpop06}{Share of population aged 0-6}
+#'   \item{partpop7_15}{Share of population aged 7-15}
+#'   \item{partpop80_}{Share of population aged 80+}
+#'   \item{partforeign}{Share of foreign born population}
+#'   \item{costequalgrants}{Cost-equalizing grants}
+#'   \item{popchange_10y}{10 year out-migration, lagged 2 years}
+#'   \item{pers_admin}{Personnel, administration}
+#'   \item{pers_child}{Personnel, child care}
+#'   \item{pers_school}{Personnel, schools}
+#'   \item{pers_elder}{Personnel, elderly care}
+#'   \item{pers_total}{Personnel, total (full time equivalents pers 1,000 capita)}
+#'   \item{pers_social}{Personnel, social welfare}
+#'   \item{pers_tech}{Personnel, technical services}
+#'   \item{expenditures_total}{Total per capita public expenditures}
+#'   \item{wage_admin}{Average montly wage, administration}
+#'   \item{wage_child}{Average monthly wage, child care}
+#'   \item{wage_school}{Average monthly wage, schools}
+#'   \item{wage_elder}{Average monthly wage, elderly care}
+#'   \item{wage_total}{Average monthly wage, total}
+#'   \item{wage_social}{Average monthly wage, social welfare}
+#'   \item{wage_tech}{Average monthly wage, technical services}
+#'   \item{pers_officials}{Personnel, high administrative officials}
+#'   \item{pers_assistants}{Personnel, administrative assistants}
+#'   \item{pers_priv_school}{Outsourced personnel, schools}
+#'   \item{pers_priv_elder}{Outsourced personnel, elderly care}
+#'   \item{pers_priv_social}{Outsourced personnel, social welfare}
+#'   \item{pers_priv_child}{Outsourced personnel, child care}
+#'   \item{migrationgrant}{round(abs((popchange_10y+2)\*100)) if popchange_10y <= -2, 0 otherwise}
+#'   \item{migpop}{migrationgrant\*pop_1}
+#'   \item{summigpop}{sum(migpop) by year}
+#'   \item{sumpop}{sum(pop_1) by year}
+#'   \item{migrationmean}{summigpop/sumpop}
+#'   \item{exp_total}{Annual expenditures on personnel in 100SEK/capita}
+#'   \item{exp_admin}{Annual expenditures on personnel in 100SEK/capita}
+#'   \item{exp_child}{Annual expenditures on personnel in 100SEK/capita}
+#'   \item{exp_school}{Annual expenditures on personnel in 100SEK/capita}
+#'   \item{exp_elder}{Annual expenditures on personnel in 100SEK/capita}
+#'   \item{exp_social}{Annual expenditures on personnel in 100SEK/capita}
+#'   \item{exp_tech}{Annual expenditures on personnel in 100SEK/capita}
+#'   \item{expshare_total}{exp_total\*100/expenditures_total}
+#'   \item{expshare_admin}{exp_admin\*100/expenditures_total}
+#'   \item{expshare_child}{exp_child\*100/expenditures_total}
+#'   \item{expshare_school}{exp_school\*100/expenditures_total}
+#'   \item{expshare_elder}{exp_elder\*100/expenditures_total}
+#'   \item{expshare_social}{exp_social\*100/expenditures_total}
+#'   \item{expshare_tech}{exp_tech\*100/expenditures_total}
+#'   \item{outmigration}{-popchange_10y}
+#'   \item{forcing}{outmigration-2}
+#' }
+#' @docType data
+#' @references Lundqvist, Heléne, Dahlberg, Matz and Mörk, Eva (2014): "Stimulating Local Public Employment: Do General Grants Work?" American Economic Journal: Economic Policy, 6 (1): 167-92.
+#' @examples
+#' \dontrun{
+#' require(rdrobust)                             # load rdrobust package
+#' require(causalweight)                         # load causalweight package
+#' data(rkd)                                     # load rkd data
+#' attach(rkd)                                   # attach rkd data
+#' Y=pers_total                                  # define outcome (total personnel)
+#' R=forcing                                     # define running variable
+#' D=costequalgrants                             # define treatment (grants)
+#' results=rdrobust(y=Y, x=R, fuzzy=D, deriv=1)  # run fuzzy RKD
+#' summary(results)}                             # show results
+"rkd"

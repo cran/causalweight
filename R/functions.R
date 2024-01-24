@@ -13,7 +13,7 @@ hdtreat_newscore = function(y, d, x, MLmethod = "lasso", k = 3, zeta, seed){
     eydxte <- predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
     score <- rbind(score, cbind(d[tesample],y[tesample],eydxte,zeta[tesample]))
   }
-  score <- score[order(idx),]
+  score <- score[sort(idx),]
   score
 }
 
@@ -30,7 +30,8 @@ treatDML_newscore = function(y, d, x, dtreat = 1, dcontrol = 0,
   meantreat <- mean(tscores)
   meancontrol <- mean(cscores)
   effect <- mean((tscores - cscores)^2+scorestreat[,4])
-  se <- sqrt((mean(((tscores-cscores)^2-effect)^2)+var(scorestreat[,4]))/length(tscores))
+  # se <- sqrt((mean(((tscores-cscores)^2-effect)^2)+var(scorestreat[,4]))/length(tscores))
+  se <- sqrt((mean(((tscores-cscores)^2+scorestreat[,4]-effect)^2))/length(tscores))
   pval <- 2*pnorm((-1)*abs(effect/se))
   list(effect = effect, se = se, pval = pval, meantreat = meantreat,
     meancontrol = meancontrol)
@@ -1268,7 +1269,7 @@ hddyntreat=function(y2,d1,d2,x0,x1, s=NULL, trim=0.05, MLmethod="lasso", fewspli
     trimmed=1*((p1te*p2te)<trim)
     score=rbind(score, cbind(gte,d1[tesample],d2[tesample],y2[tesample],y2d1d2te,p1te,p2te,y1d1te,ste,trimmed))
   }
-  score = score[order(idx),]
+  score = score[sort(idx),]
   score
 }
 
@@ -1298,7 +1299,7 @@ hdtreat=function(y,d,x,s=NULL, trim=0.01, MLmethod="lasso", k=3){
     trimmed=1*((pste)<trim)
     score=rbind(score, cbind(gte,d[tesample],y[tesample],eydxte,pste, ste,trimmed))
   }
-  score = score[order(idx),]
+  score = score[sort(idx),]
   score
 }
 
@@ -1346,7 +1347,7 @@ hdseltreat=function(y,d,x,s, z, trim=0.01, MLmethod="lasso", k=3, selected=0){
     if (selected==1) trimmed=1*(pste<trim)
     score=rbind(score, cbind(gte,d[tesample],y[tesample],eydxte,pste, s[tesample],trimmed))
   }
-  score = score[order(idx),]
+  score = score[sort(idx),]
   score
 }
 

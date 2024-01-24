@@ -1,0 +1,32 @@
+#' India's National Health Insurance Program (RSBY)
+#'
+#' A dataset which is a subset of the data from the randomized evaluation of the India's National
+#' Health Insurance Program (RSBY).
+#'
+#' @format A data frame with 11'089 rows and 7 variables:
+#' \describe{
+#'   \item{X}{individual identification}
+#'   \item{village_id}{village identification}
+#'   \item{DistrictId}{district identification}
+#'   \item{treat}{treatment status (insurance)}
+#'   \item{mech}{treatment assignment mechanism}
+#'   \item{enrolled}{enrolled}
+#'   \item{EXPhosp_1}{hospital expenditure}
+#' }
+#' @docType data
+#' @references Imai, Kosuke; Jiang, Zhichao; Malani, Anup, 2020, "Replication Data for: Causal Inference with Interference and Noncompliance in Two-Stage Randomized Experiments.", https://doi.org/10.7910/DVN/N7D9LS, Harvard Dataverse, V1
+#' @examples
+#' \dontrun{
+#' require(devtools)                        # load devtools package
+#' install_github("szonszein/interference") # install interference package
+#' library(interference)                    # load interference package
+#' data(india)                              # load data
+#' attach(india)                            # attach data
+#' india=na.omit(india)                     # drop observations with missings
+#' group=india$village_id                   # cluster id
+#' group_tr=india$mech                      # indicator high treatment proportion
+#' indiv_tr=india$treat                     # individual treatment (insurance)
+#' obs_outcome=india$EXPhosp_1              # outcome  (hospital expenditure)
+#' dat=data.frame(group,group_tr,indiv_tr,obs_outcome) # generate data frame
+#' estimates_hierarchical(dat)}             # run estimation
+"india"

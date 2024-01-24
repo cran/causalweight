@@ -99,10 +99,10 @@ beta0=c(rep(0.25,s0), rep(0,p0-s0))
 # coefficients determining degree of confounding for baseline covariates
 d1=(x0\%*\%beta0+rnorm(n)>0)*1
 # equation of first treatment in period 1
-x1=matrix(rnorm(n*p1),ncol=p1)
-# covariate matrix for covariates of period 1
+x1=matrix(rnorm(n*p1),ncol=p1)+matrix(0.1 * d1, nrow = n, ncol = p1)
+# covariate matrix for covariates of period 1 (affected by 1st treatment d1)
 beta1=c(rep(0.25,s1), rep(0,p1-s1))
-# coefficients determining degree of confounding for additonal covariates of period 1
+# coefficients determining degree of confounding for covariates of period 1
 d2=(x0\%*\%beta0+x1\%*\%beta1+0.5*d1+rnorm(n)>0)*1
 # equation of second treatment in period 2
 y2=x0\%*\%beta0+x1\%*\%beta1+1*d1+0.5*d2+rnorm(n)
