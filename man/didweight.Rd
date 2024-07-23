@@ -46,7 +46,7 @@ t=1*(rnorm(n)>0)                  # time period
 u=rnorm(n)                        # time constant unobservable
 x=0.5*t+rnorm(n)                  # time varying covariate
 d=1*(x+u+rnorm(n)>0)              # treatment
-y=d*t+d+t+x+u                     # outcome
+y=d*t+t+x+u+rnorm(n)              # outcome
 # The true effect equals 1
 didweight(y=y,d=d,t=t,x=x, boot=199)}
 }

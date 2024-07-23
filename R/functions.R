@@ -1822,3 +1822,90 @@ rdd.x.boot<-function(y,z,x, bw0, bw1, bwz, boot=1999, regtype){
   }
   mc
 }
+
+MLmean = function(y, x, d, MLmethod = "lasso", k = 3, zeta, seed){
+  ybin <- 1*(length(unique(y))==2 & min(y)==0 & max(y)==1)  # check if binary outcome
+  x <- data.frame(x)
+  stepsize <- ceiling((1/k)*length(d))
+  set.seed(seed)
+  idx <- sample(length(d), replace=FALSE)
+  score <- c()
+  # cross-fitting procedure that splits sample in training and testing data
+  for (i in 1:k){
+    tesample <- idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
+    trsample <- idx[-tesample]
+    eydx <- MLfunct(y = y[trsample], x = x[trsample,], MLmethod = MLmethod, ybin = ybin)
+    eydxte <- predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
+    score <- rbind(score, cbind(eydxte,zeta[tesample]))
+  }
+  score <- score[order(idx),]
+  score
+}
+
+
+hdtest = function(y1, y0, d, x, trim = 0.01, MLmethod = "lasso", k = 3) {
+
+  # Check if the outcome is binary
+  ybin = 1 * (length(unique(y1)) == 2 & min(y1) == 0 & max(y1) == 1 &
+                length(unique(y0)) == 2 & min(y0) == 0 & max(y0) == 1)
+
+  ## Convert vectors to data frames for processing
+  # Dataframe with covariates for did nuisance parameters
+  x = data.frame(x)
+
+  # Dataframe with covariates and outcome in period 0 for selobs nuisance parameters
+  xy0 = data.frame(x, y0)
+
+  # Counterfactual treatment status
+  d0 = 1 - d
+
+  # Difference in outcome period 0 to period 1
+  y10 = y1 - y0
+
+  # Calculate the step size for cross-validation splits
+  stepsize = ceiling((1 / k) * length(d))
+  set.seed(1)
+  idx = sample(length(d), replace = FALSE)
+
+  # Initialize an empty vector to store nuisance parameters
+  nuisance = c()
+
+  # Cross-fitting procedure to split sample into training and testing data
+  for (i in 1:k) {
+    tesample = idx[((i - 1) * stepsize + 1):(min(i * stepsize, length(d)))]
+    trsample = idx[-tesample]
+
+    # Estimate OOB-propensity scores
+    # Selobs: train propensity score learner
+    p = MLfunct(y = d[trsample], x = xy0[trsample, ], MLmethod = MLmethod, ybin = 1)
+
+    # Selobs: predict OOB propensity scores
+    pte = predict(p, xy0[tesample, ], onlySL = TRUE)$pred
+
+    # Did: train propensity score learner
+    pi = MLfunct(y = d[trsample], x = x[trsample, ], MLmethod = MLmethod, ybin = 1)
+
+    # Did: predict OOB propensity scores
+    pite = predict(pi, x[tesample, ], onlySL = TRUE)$pred
+
+    # Estimate OOB-conditional outcome
+    # Selobs: train conditional outcome learner
+    mu = MLfunct(y = y1[trsample], x = xy0[trsample, ], d1 = d0[trsample], MLmethod = MLmethod, ybin = ybin)
+
+    # Selobs: predict OOB conditional outcome learner
+    mute = predict(mu, xy0[tesample, ], onlySL = TRUE)$pred
+
+    # Did: train conditional outcome learner
+    m = MLfunct(y = y10[trsample], x = x[trsample, ], d1 = d0[trsample], MLmethod = MLmethod, ybin = ybin)
+
+    # Selobs: predict OOB conditional outcome learner
+    mte = predict(m, x[tesample, ], onlySL = TRUE)$pred
+
+    # Find observations not satisfying trimming restriction
+    trimmed = 1 * ((pte > 1 - trim) | (pite > 1 - trim))
+    nuisance = rbind(nuisance, cbind(d[tesample], y1[tesample], y0[tesample], pte, pite, mute, mte, trimmed))
+  }
+
+  nuisance = nuisance[sort(idx), ]
+  return(nuisance)
+}
