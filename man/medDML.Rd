@@ -14,7 +14,8 @@ medDML(
   order = 1,
   multmed = TRUE,
   fewsplits = FALSE,
-  normalized = TRUE
+  normalized = TRUE,
+  MLmethod = "lasso"
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ medDML(
 \item{fewsplits}{If set to \code{TRUE}, the same training data are used for estimating nested models of nuisance parameters, i.e. \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of nested models \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. This parameter is only relevant if \code{multmed} is \code{TRUE}. Default of \code{fewsplits} is \code{FALSE}.}
 
 \item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
+
+\item{MLmethod}{Machine learning method for estimating the nuisance parameters based on the \code{hdm} package (for lasso) or the \code{SuperLearner} package (for any other machine learner). Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.}
 }
 \value{
 A medDML object contains two components, \code{results} and \code{ntrimmed}:

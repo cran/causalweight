@@ -475,7 +475,7 @@ bootstrap.late<-function(y,d,z,x,boot=1999,trim=0.05, LATT=FALSE, logit=FALSE, c
 }
 
 
-effects_late_x<-function(y,d,m,zd,  x, zm, trim=0.05, csquared=FALSE, bwreg=bwreg, bwm=bwm, cminobs=40, logit=FALSE){
+effects.late.x<-function(y,d,m,zd,  x, zm, trim=0.05, csquared=FALSE, bwreg=bwreg, bwm=bwm, cminobs=40, logit=FALSE){
   if (is.null(bwreg) | is.null(bwm)) temp<-npcdensbw(ydat=m, xdat=data.frame(zm,x), ckertype="gaussian", bwmethod="normal-reference")
   if (is.null(bwreg))  bwreg<-temp$xbw
   if (is.null(bwm))  bwm<-temp$ybw
@@ -561,7 +561,7 @@ bootstrap.mediation.late.x<-function(y,d,m,zd,zm,x, boot=1999,trim=0.05, csquare
       if (is.null(ncol(zm))==0) zmb<-zm[sboot,]
       if (is.null(ncol(x))) xb<-x[sboot]
       if (is.null(ncol(x))==0) xb<-x[sboot,]
-      bsamples[i,]=effects_late_x(y=yb,d=db,m=mb,zd=zdb, zm=zmb, x=xb, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
+      bsamples[i,]=effects.late.x(y=yb,d=db,m=mb,zd=zdb, zm=zmb, x=xb, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
     }
   }
 
@@ -583,7 +583,7 @@ bootstrap.mediation.late.x<-function(y,d,m,zd,zm,x, boot=1999,trim=0.05, csquare
         if (is.null(ncol(zm))) zmb<-c(zmb,zm[key==sboot[k]])
         if (is.null(ncol(zm))==0) zmb=rbind(zmb,zm[key==sboot[k],])
       }
-      est=effects_late_x(y=yb,d=db,m=mb,zd=zdb, zm=zmb, x=xb, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
+      est=effects.late.x(y=yb,d=db,m=mb,zd=zdb, zm=zmb, x=xb, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
       bsamples<-rbind(bsamples, est)
       temp<-c(temp,1)
     }
@@ -954,9 +954,7 @@ bootstrap.did<-function(y,d,t, x=NULL,boot=1999,trim=0.05, cluster=NULL){
   bsamples
 }
 
-
-
-hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE){
+hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE, MLmethod="lasso"){
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
   if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
   stepsize=ceiling((1/k)*length(d))
@@ -973,11 +971,13 @@ hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE){
     if (is.null(ncol(x))==0 & ncol(x)>1) {
       xtr=x[-tesample,]; xte=x[tesample,]; xtr1=xtr[dtr==1,]; xtr0=xtr[dtr==0,]; xtr11=xtr[dtr==1 & mtr==1,]; xtr10=xtr[dtr==1 & mtr==0,]; xtr01=xtr[dtr==0 & mtr==1,]; xtr00=xtr[dtr==0 & mtr==0,]
     }
-      ytr11=ytr[dtr==1 & mtr==1]; ytr10=ytr[dtr==1 & mtr==0]; ytr01=ytr[dtr==0 & mtr==1]; ytr00=ytr[dtr==0 & mtr==0];
-      # tr stands for first training data, te for test data, "1" and "0" for subsamples with treated and nontreated
-      tr=data.frame(ytr,dtr,xtr,mtr);
-      tr1=data.frame(ytr1,xtr1,mtr1); tr0=data.frame(ytr0,xtr0,mtr0);
-      te=data.frame(yte,xte,mte);
+    ytr11=ytr[dtr==1 & mtr==1]; ytr10=ytr[dtr==1 & mtr==0]; ytr01=ytr[dtr==0 & mtr==1]; ytr00=ytr[dtr==0 & mtr==0];
+    # tr stands for first training data, te for test data, "1" and "0" for subsamples with treated and nontreated
+    tr=data.frame(ytr,dtr,xtr,mtr);
+    tr1=data.frame(ytr1,xtr1,mtr1); tr0=data.frame(ytr0,xtr0,mtr0);
+    te=data.frame(yte,xte,mte);
+
+    if (MLmethod=="lasso"){
       # predict Pr(M=1|D=1,X) in test data
       pm1=rlassologit(mtr1~xtr1)
       pm1te=predict(pm1, xte, type="response")
@@ -1026,11 +1026,42 @@ hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE){
         eyx0=rlassologit(ytr0~xtr0)
         eyx0te=predict(eyx0, xte, type="response")
       }
-      # predict E(Y| D=0, M, X) in test data
-      eymx0te=mte*eymx01te+(1-mte)*eymx00te
-      # predict E(Y| D=1, M, X) in test data
-      eymx1te=mte*eymx11te+(1-mte)*eymx10te
+    }
+    if (MLmethod!="lasso") {
+      xtr=data.frame(xtr); xte=data.frame(xte); xtr1=data.frame(xtr1); xtr0=data.frame(xtr0); xtr11=data.frame(xtr11); xtr10=data.frame(xtr10); xtr01=data.frame(xtr01); xtr00=data.frame(xtr00)
+      # predict Pr(M=1|D=1,X) in test data
+      pm1=MLfunct(y=mtr1, x=xtr1, MLmethod=MLmethod,  ybin=1)
+      pm1te=predict(pm1, xte, onlySL = TRUE)$pred
+      # predict Pr(M=1|D=0,X) in test data
+      pm0=MLfunct(y=mtr0, x=xtr0, MLmethod=MLmethod,  ybin=1)
+      pm0te=predict(pm0, xte, onlySL = TRUE)$pred
+      # predict Pr(D=1|X) in test data
+      pd=MLfunct(y=dtr, x=xtr, MLmethod=MLmethod,  ybin=1)
+      pdte=predict(pd, xte, onlySL = TRUE)$pred
+      # predict E(Y| D=1, M=1, X) in test data
+      eymx11=MLfunct(y=ytr11, x=xtr11, MLmethod=MLmethod,  ybin=ybin)
+      eymx11te=predict(eymx11, xte, onlySL = TRUE)$pred
+      # predict E(Y| D=0, M=1, X) in test data
+      eymx01=MLfunct(y=ytr01, x=xtr01, MLmethod=MLmethod,  ybin=ybin)
+      eymx01te=predict(eymx01, xte, onlySL = TRUE)$pred
+      # predict E(Y| D=1, M=0, X) in test data
+      eymx10=MLfunct(y=ytr10, x=xtr10, MLmethod=MLmethod,  ybin=ybin)
+      eymx10te=predict(eymx10, xte, onlySL = TRUE)$pred
+      # predict E(Y| D=0, M=0, X) in test data
+      eymx00=MLfunct(y=ytr00, x=xtr00, MLmethod=MLmethod,  ybin=ybin)
+      eymx00te=predict(eymx00, xte, onlySL = TRUE)$pred
+      #  predict E(Y|D=1, X) in test data
+      eyx1=MLfunct(y=ytr1, x=xtr1, MLmethod=MLmethod,  ybin=ybin)
+      eyx1te=predict(eyx1, xte, onlySL = TRUE)$pred
+      #  predict E(Y|D=0, X) in test data
+      eyx0=MLfunct(y=ytr0, x=xtr0, MLmethod=MLmethod,  ybin=ybin)
+      eyx0te=predict(eyx0, xte, onlySL = TRUE)$pred
+    }
 
+    # predict E(Y| D=0, M, X) in test data
+    eymx0te=mte*eymx01te+(1-mte)*eymx00te
+    # predict E(Y| D=1, M, X) in test data
+    eymx1te=mte*eymx11te+(1-mte)*eymx10te
     # predict score functions for E(Y(1,M(0))) in the test data
     eta10=(eymx11te*pm0te+eymx10te*(1-pm0te))
     eta01=(eymx01te*pm1te+eymx00te*(1-pm1te))
@@ -1056,7 +1087,6 @@ hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE){
     y0m1=(nobs*(1-score[,1])*score[,4]/((1-score[,3])*score[,2])*(score[,5]-score[,9]))/sumscores4+(nobs*score[,1]/score[,3]*(score[,9]-score[,10]))/sumscores3+score[,10]
     y0m0=score[,11] + (nobs*(1-score[,1])*(score[,5]-score[,11])/(1-score[,3]))/sumscores2
   }
-
   # compute mean potential outcomes
   my1m1=mean(y1m1); my0m1=mean(y0m1); my1m0=mean(y1m0); my0m0=mean(y0m0)
   # compute effects
@@ -1068,20 +1098,20 @@ hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE){
 }
 
 # function for mediation with high dimensional covariates based on Bayes rule
-hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE){
+hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE, MLmethod="lasso"){
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
   #generate higher order terms for lasso
-    xm=cbind(x,m)
-    if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
-    if (order>1) xm=Generate.Powers(xm,lambda=order); xm=as.matrix(xm,nrow(xm),ncol(xm))
-    stepsize=ceiling((1/3)*length(d))
-    nobs = min(3*stepsize,length(d)); set.seed(1); idx = sample(nobs);
-    sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];
-    sample3 = idx[(2*stepsize+1):nobs];
-    #nobs = min(4*stepsize,length(d)); set.seed(1); idx = sample(nobs);
-    #sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];
-    #sample3 = idx[(2*stepsize+1):(3*stepsize)]; sample4 = idx[(3*stepsize+1):nobs]
-    score=c(); selall=c()
+  xm=cbind(x,m)
+  if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
+  if (order>1) xm=Generate.Powers(xm,lambda=order); xm=as.matrix(xm,nrow(xm),ncol(xm))
+  stepsize=ceiling((1/3)*length(d))
+  nobs = min(3*stepsize,length(d)); set.seed(1); idx = sample(nobs);
+  sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];
+  sample3 = idx[(2*stepsize+1):nobs];
+  #nobs = min(4*stepsize,length(d)); set.seed(1); idx = sample(nobs);
+  #sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];
+  #sample3 = idx[(2*stepsize+1):(3*stepsize)]; sample4 = idx[(3*stepsize+1):nobs]
+  score=c(); selall=c()
   # crossfitting procedure that splits sample in training an testing data
   for (i in 1:3){
     if (i==1) {tesample=sample1; musample=sample2; deltasample=sample3}
@@ -1090,16 +1120,46 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE)
     trsample=c(musample,deltasample); dte=d[tesample]; yte=y[tesample]
     # in case that fewsplits is one, psample and musample are merged
     if (fewsplits==1){musample=c(musample,deltasample);deltasample=musample}
-      x=as.matrix(x,nrow(x),ncol(x)); xm=as.matrix(xm,nrow(xm),ncol(xm))
-      # fit Pr(D=1|M,X) in total of training data
+    x=as.matrix(x,nrow(x),ncol(x)); xm=as.matrix(xm,nrow(xm),ncol(xm))
+    if (MLmethod!="lasso") {
+      xm=data.frame(xm); x=data.frame(x)
+      pmx=MLfunct(y=d[trsample], x=xm[trsample,], MLmethod=MLmethod,  ybin=1)
+      pmxte=predict(pmx, xm[tesample,], onlySL = TRUE)$pred
+      px=MLfunct(y=d[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
+      pxte=predict(px, x[tesample,], onlySL = TRUE)$pred
+      eymx1=MLfunct(y=y[musample[d[musample]==1]], x=xm[musample[d[musample]==1],], MLmethod=MLmethod,  ybin=ybin)
+      # predict E(Y|M,X,D=1) in test data
+      eymx1te=predict(eymx1, xm[tesample,], onlySL = TRUE)$pred
+      # predict E(Y|M,X,D=1) in delta sample
+      eymx1trte=predict(eymx1, xm[deltasample,], onlySL = TRUE)$pred
+      dtrte=d[deltasample]; xtrte=data.frame(x)[deltasample,]
+      regweymx1=MLfunct(y=eymx1trte[dtrte==0], x=xtrte[dtrte==0,], MLmethod=MLmethod, ybin=0)
+      # predict E[E(Y|M,X,D=1)|D=0,X] in the test data
+      regweymx1te=predict(regweymx1, x[tesample,], onlySL = TRUE)$pred
+      #  fit E(Y|X,D=1) in total of training data with D=1 by running Y~X
+      temp=MLfunct(y=y[trsample[d[trsample]==1]], x=x[trsample[d[trsample]==1],], MLmethod=MLmethod, ybin=ybin)
+      # predict E(Y|X,D=1) in the test data
+      eyx1te=predict(temp, x[tesample,], onlySL = TRUE)$pred
+      # fit E(Y|M,X,D=0) in first training data
+      eymx0=MLfunct(y=y[musample[d[musample]==0]], x=xm[musample[d[musample]==0],], MLmethod=MLmethod, ybin=ybin)
+      # predict E(Y|M,X,D=0) in test data
+      eymx0te=predict(eymx0, xm[tesample,], onlySL = TRUE)$pred
+      # predict E(Y|M,X,D=0) in delta sample
+      eymx0trte=predict(eymx0, xm[deltasample,], onlySL = TRUE)$pred
+      regweymx0=MLfunct(y=eymx0trte[dtrte==1], x=xtrte[dtrte==1,], MLmethod=MLmethod, ybin=0)
+      regweymx0te=predict(regweymx0, x[tesample,], onlySL = TRUE)$pred
+      temp=MLfunct(y=y[trsample[d[trsample]==0]], x=x[trsample[d[trsample]==0],], MLmethod=MLmethod, ybin=ybin)
+      # predict E(Y|X,D=0) in the test data
+      eyx0te=predict(temp, x[tesample,], onlySL = TRUE)$pred
+    }
+    # fit E(Y|M,X,D=1) in first training data
+    if (MLmethod=="lasso") {
+      # fit Pr(D=1|M,X) in total of training data and predict Pr(D=1|M,X) in test data
       pmx=rlassologit(d[trsample]~xm[trsample,])
-      # predict Pr(D=1|M,X) in test data
       pmxte=predict(pmx, xm[tesample,], type="response")
-      # fit Pr(D=1|X) in total of training data
+      # fit Pr(D=1|X) in total of training data and predict Pr(D=1|X) in test data
       px=rlassologit(d[trsample]~x[trsample,])
-      # predict Pr(D=1|X) in test data
       pxte=predict(px, x[tesample,], type="response")
-      # fit E(Y|M,X,D=1) in first training data
       if (ybin!=1){
         eymx1=rlasso(y[musample[d[musample]==1]]~xm[musample[d[musample]==1],])
         # predict E(Y|M,X,D=1) in test data
@@ -1108,7 +1168,7 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE)
         eymx1trte=predict(eymx1, xm[deltasample,])
       }
       if (ybin==1){
-       eymx1=rlassologit(y[musample[d[musample]==1]]~xm[musample[d[musample]==1],])
+        eymx1=rlassologit(y[musample[d[musample]==1]]~xm[musample[d[musample]==1],])
         # predict E(Y|M,X,D=1) in test data
         eymx1te=predict(eymx1, xm[tesample,], type="response")
         # predict E(Y|M,X,D=1) in delta sample
@@ -1142,9 +1202,9 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE)
         # predict E(Y|M,X,D=0) in delta sample
         eymx0trte=predict(eymx0, xm[deltasample,], type="response")
       }
-      # fit E[E(Y|M,X,D=0)|D=1,X] in delta sample
+
+      # fit E[E(Y|M,X,D=0)|D=1,X] in delta sample and predict E[E(Y|M,X,D=0)|D=1, X] in the test data
       regweymx0=rlasso(eymx0trte[dtrte==1]~xtrte[dtrte==1,])
-      # predict E[E(Y|M,X,D=0)|D=1, X] in the test data
       regweymx0te=predict(regweymx0, x[tesample,])
       if (ybin!=1){
         #  fit E(Y|X,D=0) in total of training data with D=0 by running Y~X
@@ -1158,6 +1218,7 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE)
         # predict E(Y|X,D=0) in the test data
         eyx0te=predict(temp, x[tesample,], type="response")
       }
+    }
     # select observations satisfying trimming restriction
     sel= 1*((((1-pmxte)*pxte)>=trim) & ((1-pxte)>=trim)  & (pxte>=trim) &  (((pmxte*(1-pxte)))>=trim)   )
 
@@ -1167,7 +1228,6 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE)
     # collect selection dummies
     selall=c(selall,sel)
   }
-
   # compute scores for potential outcomes
   if (normalized==FALSE) {
     y0m1=((1-score[,1])*score[,2]/((1-score[,2])*score[,3])*(score[,4]-score[,5])+score[,1]/score[,3]*(score[,5]-score[,6])+score[,6])
@@ -1196,7 +1256,6 @@ hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE)
   # report effects, mean of Y(0,M(0)), variances, number of non-trimmed observations
   c(tot, dir1, dir0, indir1, indir0, my0m0, vtot, vdir1, vdir0, vindir1, vindir0, vcontrol, sum(selall))
 }
-
 
 # DYNAMIC TREATMENT EFFECTS WITH DOUBLE MACHINE LEARNING
 
@@ -1821,4 +1880,91 @@ rdd.x.boot<-function(y,z,x, bw0, bw1, bwz, boot=1999, regtype){
     i=i+1
   }
   mc
+}
+
+MLmean = function(y, x, d, MLmethod = "lasso", k = 3, zeta, seed){
+  ybin <- 1*(length(unique(y))==2 & min(y)==0 & max(y)==1)  # check if binary outcome
+  x <- data.frame(x)
+  stepsize <- ceiling((1/k)*length(d))
+  set.seed(seed)
+  idx <- sample(length(d), replace=FALSE)
+  score <- c()
+  # cross-fitting procedure that splits sample in training and testing data
+  for (i in 1:k){
+    tesample <- idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
+    trsample <- idx[-tesample]
+    eydx <- MLfunct(y = y[trsample], x = x[trsample,], MLmethod = MLmethod, ybin = ybin)
+    eydxte <- predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
+    score <- rbind(score, cbind(eydxte,zeta[tesample]))
+  }
+  score <- score[order(idx),]
+  score
+}
+
+
+hdtest = function(y1, y0, d, x, trim = 0.01, MLmethod = "lasso", k = 3) {
+
+  # Check if the outcome is binary
+  ybin = 1 * (length(unique(y1)) == 2 & min(y1) == 0 & max(y1) == 1 &
+                length(unique(y0)) == 2 & min(y0) == 0 & max(y0) == 1)
+
+  ## Convert vectors to data frames for processing
+  # Dataframe with covariates for did nuisance parameters
+  x = data.frame(x)
+
+  # Dataframe with covariates and outcome in period 0 for selobs nuisance parameters
+  xy0 = data.frame(x, y0)
+
+  # Counterfactual treatment status
+  d0 = 1 - d
+
+  # Difference in outcome period 0 to period 1
+  y10 = y1 - y0
+
+  # Calculate the step size for cross-validation splits
+  stepsize = ceiling((1 / k) * length(d))
+  set.seed(1)
+  idx = sample(length(d), replace = FALSE)
+
+  # Initialize an empty vector to store nuisance parameters
+  nuisance = c()
+
+  # Cross-fitting procedure to split sample into training and testing data
+  for (i in 1:k) {
+    tesample = idx[((i - 1) * stepsize + 1):(min(i * stepsize, length(d)))]
+    trsample = idx[-tesample]
+
+    # Estimate OOB-propensity scores
+    # Selobs: train propensity score learner
+    p = MLfunct(y = d[trsample], x = xy0[trsample, ], MLmethod = MLmethod, ybin = 1)
+
+    # Selobs: predict OOB propensity scores
+    pte = predict(p, xy0[tesample, ], onlySL = TRUE)$pred
+
+    # Did: train propensity score learner
+    pi = MLfunct(y = d[trsample], x = x[trsample, ], MLmethod = MLmethod, ybin = 1)
+
+    # Did: predict OOB propensity scores
+    pite = predict(pi, x[tesample, ], onlySL = TRUE)$pred
+
+    # Estimate OOB-conditional outcome
+    # Selobs: train conditional outcome learner
+    mu = MLfunct(y = y1[trsample], x = xy0[trsample, ], d1 = d0[trsample], MLmethod = MLmethod, ybin = ybin)
+
+    # Selobs: predict OOB conditional outcome learner
+    mute = predict(mu, xy0[tesample, ], onlySL = TRUE)$pred
+
+    # Did: train conditional outcome learner
+    m = MLfunct(y = y10[trsample], x = x[trsample, ], d1 = d0[trsample], MLmethod = MLmethod, ybin = ybin)
+
+    # Selobs: predict OOB conditional outcome learner
+    mte = predict(m, x[tesample, ], onlySL = TRUE)$pred
+
+    # Find observations not satisfying trimming restriction
+    trimmed = 1 * ((pte > 1 - trim) | (pite > 1 - trim))
+    nuisance = rbind(nuisance, cbind(d[tesample], y1[tesample], y0[tesample], pte, pite, mute, mte, trimmed))
+  }
+
+  nuisance = nuisance[sort(idx), ]
+  return(nuisance)
 }

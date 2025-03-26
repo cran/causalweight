@@ -10,6 +10,7 @@
 #' @param multmed If set to \code{TRUE}, a representation of direct and indirect effects that avoids conditional mediator densities/probabilities is used, see Farbmacher, Huber, Langen, and Spindler (2019). This method can incorporate multiple and/or continuous mediators. If \code{multmed} is \code{FALSE}, the representation of Tchetgen Tchetgen and Shpitser (2012) is used, which involves mediator densities. In this case, the mediator must be a binary scalar. Default of \code{multimed} is \code{TRUE}.
 #' @param fewsplits If set to \code{TRUE}, the same training data are used for estimating nested models of nuisance parameters, i.e. \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of nested models \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. This parameter is only relevant if \code{multmed} is \code{TRUE}. Default of \code{fewsplits} is \code{FALSE}.
 #' @param normalized If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.
+#' @param MLmethod Machine learning method for estimating the nuisance parameters based on the \code{hdm} package (for lasso) or the \code{SuperLearner} package (for any other machine learner). Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.
 #' @details Estimation of causal mechanisms (natural direct and indirect effects) of a treatment under selection on observables, assuming that all confounders of the binary treatment and the mediator, the treatment and the outcome, or the mediator and the outcome are observed and not affected by the treatment. Estimation is based on the (doubly robust) efficient score functions for potential outcomes, see Tchetgen Tchetgen and Shpitser (2012) and Farbmacher, Huber, Langen, and Spindler (2019),
 #' as well as on double machine learning with cross-fitting, see Chernozhukov et al (2018). To this end, one part of the data is used for estimating the model parameters of the treatment, mediator, and outcome equations based on post-lasso regression, using the \code{rlasso} and \code{rlassologit} functions (for conditional means and probabilities, respectively) of the \code{hdm} package with default settings. The other part of the data is used for predicting the efficient score functions. The roles of the data parts are swapped and the direct and indirect effects are estimated based on averaging the predicted efficient score functions in the total sample.
 #' Standard errors are based on asymptotic approximations using the estimated variance of the (estimated) efficient score functions.
@@ -36,14 +37,14 @@
 #' round(output$results,3)
 #' output$ntrimmed}
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm dnorm quantile
-#' @import hdm LARF
+#' @import hdm LARF SuperLearner glmnet ranger xgboost e1071
 #' @export
 
 
 # function for estimation, se, and p-values
-medDML=function(y,d,m,x,k=3, trim=0.05, order=1, multmed=TRUE, fewsplits=FALSE, normalized=TRUE){
-  if (multmed!=0) temp=hdmedalt(y=y,d=d,m=m,x=x, trim=trim, order=order, fewsplits=fewsplits, normalized=normalized)
-  if (multmed==0) temp=hdmed(y=y,d=d,m=m,x=x,k=k,trim=trim, order=order, normalized=normalized)
+medDML=function(y,d,m,x,k=3, trim=0.05, order=1, multmed=TRUE, fewsplits=FALSE, normalized=TRUE, MLmethod="lasso"){
+  if (multmed!=0) temp=hdmedalt(y=y,d=d,m=m,x=x, trim=trim, order=order, fewsplits=fewsplits, normalized=normalized, MLmethod=MLmethod)
+  if (multmed==0) temp=hdmed(y=y,d=d,m=m,x=x,k=k,trim=trim, order=order, normalized=normalized, MLmethod=MLmethod)
   eff=temp[1:6]
   se=sqrt( (temp[7:12])/temp[13])
   results=rbind(eff,se, 2*pnorm(-abs(eff/se)))

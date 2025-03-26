@@ -41,7 +41,7 @@
 #' @import mvtnorm
 #' @export
 medlateweight=function(y,d,m,zd, zm, x, trim=0.1,  csquared=FALSE, boot=1999, cminobs=40, bwreg=NULL, bwm=NULL, logit=FALSE, cluster=NULL){
-  temp<-effects_late_x(y=y,d=d,m=m,zd=zd, zm=zm, x=x, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
+  temp<-effects.late.x(y=y,d=d,m=m,zd=zd, zm=zm, x=x, trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit)
   temp2<-bootstrap.mediation.late.x(y=y,d=d,m=m,zd=zd,zm=zm, x=x, boot=boot,trim=trim, csquared=csquared, bwreg=bwreg, bwm=bwm, cminobs=cminobs, logit=logit, cluster=cluster)
   ntrimmed=temp[length(temp)];
   temp=temp[1:(length(temp)-1)]

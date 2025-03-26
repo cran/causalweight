@@ -39,7 +39,7 @@
 #' output$ntrimmed}
 
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm dnorm quantile coef fitted gaussian median
-#' @import SuperLearner glmnet ranger xgboost e1071 mvtnorm
+#' @import SuperLearner glmnet ranger xgboost e1071
 #' @export
 
 treatDML=function(y,d,x, s=NULL, dtreat=1, dcontrol=0, trim=0.01, MLmethod="lasso", k=3, normalized=TRUE){
