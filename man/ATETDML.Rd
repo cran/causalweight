@@ -26,7 +26,7 @@ ATETDML(
 
 \item{est}{Estimation method. Must be one of \code{"dr"} (default) for doubly robust, \code{"ipw"} for inverse probability weighting (not doubly robust!), or \code{"reg"} for regression (not doubly robust!).}
 
-\item{trim}{Trimming threshold (in percentage) for discarding observations with propensity scores too close to one. Default is 0.05, implying that treatment propensity scores larger than 1-0.05=0.95 (such that the probability to be not treated is below 0.05) are trimmed.}
+\item{trim}{Trimming threshold (in percent) for discarding observations with propensity scores too close to one. Default is 0.05, implying that treatment propensity scores larger than 1-0.05=0.95 (such that the probability to be not treated is below 0.05) are trimmed.}
 
 \item{cluster}{Optional clustering variable for calculating cluster-robust standard errors.}
 

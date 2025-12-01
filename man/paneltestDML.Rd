@@ -39,7 +39,6 @@ This function applies an overidentification test to assess if unconfoundedness o
 }
 \details{
 The test statistic corresponds to the difference between the ATETs that are based on two distinct doubly robust score functions, namely that under unconfoundedness and that based on difference-in-differences under conditional common trends. Estimation in panel data is based on double machine learning and the function supports different machine learning methods to estimate nuisance parameters (conditional mean outcomes and propensity scores) as well as cross-fitting to mitigate overfitting.
-ATETselobs and ATETdid equals zero.
 }
 \examples{
 \dontrun{

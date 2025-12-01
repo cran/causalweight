@@ -29,7 +29,7 @@ didDML(
 
 \item{est}{Estimation method. Must be one of \code{"dr"} (default) for doubly robust, \code{"ipw"} for inverse probability weighting (not doubly robust!), or \code{"reg"} for regression (not doubly robust!).}
 
-\item{trim}{Trimming threshold (in percentage) for discarding observations with too small propensity scores within any subgroup defined by the treatment group and time. Default is 0.05.}
+\item{trim}{Trimming threshold (in percent) for discarding observations with too small propensity scores within any subgroup defined by the treatment group and time. Default is 0.05.}
 
 \item{cluster}{Optional clustering variable for calculating cluster-robust standard errors.}
 

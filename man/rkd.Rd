@@ -9,7 +9,7 @@ A data frame with 2511 rows and 53 variables:
 \describe{
 \item{code}{Municipality code}
 \item{year}{Year}
-\item{municipality}{Minicipality name}
+\item{municipality}{Municipality name}
 \item{pop_1}{Population, lagged 1 year}
 \item{pop}{Population}
 \item{partpop06}{Share of population aged 0-6}
@@ -59,7 +59,7 @@ A data frame with 2511 rows and 53 variables:
 \item{expshare_social}{exp_social\*100/expenditures_total}
 \item{expshare_tech}{exp_tech\*100/expenditures_total}
 \item{outmigration}{-popchange_10y}
-\item{forcing}{outmigration-2}
+\item{forcing}{outmigration-2 (running variable with threshold normalized to zero)}
 }
 }
 \usage{

@@ -8,7 +8,6 @@
 #' @param MLmethod Machine learning method for estimating nuisance parameters using the \code{SuperLearner} package. Must be one of \code{"lasso"} (default), \code{"randomforest"}, \code{"xgboost"}, \code{"svm"}, \code{"ensemble"}, or \code{"parametric"}.
 #' @param k Number of folds in k-fold cross-fitting. Default is 4.
 #' @details The test statistic corresponds to the difference between the ATETs that are based on two distinct doubly robust score functions, namely that under unconfoundedness and that based on difference-in-differences under conditional common trends. Estimation in panel data is based on double machine learning and the function supports different machine learning methods to estimate nuisance parameters (conditional mean outcomes and propensity scores) as well as cross-fitting to mitigate overfitting.
-#' ATETselobs and ATETdid equals zero.
 #' @return A list with the following components:
 #' \item{est}{Test statistic.}
 #' \item{se}{Standard error.}

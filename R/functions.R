@@ -8,7 +8,7 @@ hdtreat_newscore = function(y, d, x, MLmethod = "lasso", k = 3, zeta, seed){
   # cross-fitting procedure that splits sample in training and testing data
   for (i in 1:k){
     tesample <- idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
-    trsample <- idx[-tesample]
+    trsample=idx[!(idx %in% tesample)]
     eydx <- MLfunct(y = y[trsample], x = x[trsample,], d1 = d[trsample], MLmethod = MLmethod, ybin = ybin)
     eydxte <- predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
     score <- rbind(score, cbind(d[tesample],y[tesample],eydxte,zeta[tesample]))
@@ -1343,7 +1343,7 @@ hdtreat=function(y,d,x,s=NULL, trim=0.01, MLmethod="lasso", k=3){
   # crossfitting procedure that splits sample in training an testing data
   for (i in 1:k){
     tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
-    trsample=idx[-tesample]
+    trsample=idx[!(idx %in% tesample)]
     if (is.null(s)) {gte=rep(1,length(tesample)); ste=gte} #check if weighted estimation should be performed
     if (is.null(s)==0) {
       g=MLfunct(y=s[trsample], x=x[trsample,], MLmethod=MLmethod,  ybin=1)
@@ -1365,18 +1365,29 @@ hdtreat=function(y,d,x,s=NULL, trim=0.01, MLmethod="lasso", k=3){
 
 # ATE ESTIMATION WITH SAMPLE SELECTION BASED ON DML
 hdseltreat=function(y,d,x,s, z, trim=0.01, MLmethod="lasso", k=3, selected=0){
+  if (k < 3) {
+  warning("k must be at least 3. Resetting k = 3.")
+  k <- 3
+  }
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)  # check if binary outcome
   x=data.frame(x)
   dx=data.frame(d,x)
   score=c();
   # crossfitting procedure that splits sample in training an testing data
-  stepsize=ceiling((1/3)*length(y))
-    nobs = min(3*stepsize,length(y)); set.seed(1); idx = sample(nobs);
-    sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)]; sample3 = idx[(2*stepsize+1):nobs];
-    for (i in 1:3){
-      if (i==3) {trsample1=sample1; trsample2=sample2; tesample=sample3}
-      if (i==1) {trsample1=sample2; trsample2=sample3; tesample=sample1}
-      if (i==2) {trsample1=sample3; trsample2=sample1; tesample=sample2}
+  nobs <- length(y); set.seed(1); idx <- sample(nobs)
+  folds <- split(idx, cut(seq_along(idx), breaks = k, labels = FALSE))
+  for (i in 1:k) {
+      # Rotate fold indices
+      fold_roles <- c(i:k, if (i > 1) 1:(i - 1) else integer(0))
+      # Assign roles
+      tesample <- folds[[fold_roles[1]]]
+      k_remaining <- k - 1
+      n1 <- floor(k_remaining / 2.1)
+      n2 <- k_remaining - n1
+      trsample1_indices <- fold_roles[2:(1 + n1)]
+      trsample2_indices <- fold_roles[(2 + n1):k]
+      trsample1 <- unlist(folds[trsample1_indices], use.names = FALSE)
+      trsample2 <- unlist(folds[trsample2_indices], use.names = FALSE)
       # total training sample
       trsample=c(trsample1,trsample2)
       ytr=y[trsample]; xtr=x[trsample,]; dtr=d[trsample]; str=s[trsample]; xte=x[tesample,]
@@ -1892,7 +1903,7 @@ MLmean = function(y, x, d, MLmethod = "lasso", k = 3, zeta, seed){
   # cross-fitting procedure that splits sample in training and testing data
   for (i in 1:k){
     tesample <- idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
-    trsample <- idx[-tesample]
+    trsample=idx[!(idx %in% tesample)]
     eydx <- MLfunct(y = y[trsample], x = x[trsample,], MLmethod = MLmethod, ybin = ybin)
     eydxte <- predict(eydx, x[tesample,], onlySL = TRUE)$pred  #predict conditional outcome in test data
     score <- rbind(score, cbind(eydxte,zeta[tesample]))
@@ -1932,7 +1943,7 @@ hdtest = function(y1, y0, d, x, trim = 0.01, MLmethod = "lasso", k = 3) {
   # Cross-fitting procedure to split sample into training and testing data
   for (i in 1:k) {
     tesample = idx[((i - 1) * stepsize + 1):(min(i * stepsize, length(d)))]
-    trsample = idx[-tesample]
+    trsample=idx[!(idx %in% tesample)]
 
     # Estimate OOB-propensity scores
     # Selobs: train propensity score learner

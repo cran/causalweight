@@ -33,7 +33,7 @@ medDML(
 
 \item{order}{If set to an integer larger than 1, then polynomials of that order and interactions (using the power series) rather than the original control variables are used in the estimation of any conditional probability or conditional mean outcome. Polynomials/interactions are created using the \code{Generate.Powers} command of the \code{LARF} package.}
 
-\item{multmed}{If set to \code{TRUE}, a representation of direct and indirect effects that avoids conditional mediator densities/probabilities is used, see Farbmacher, Huber, Langen, and Spindler (2019). This method can incorporate multiple and/or continuous mediators. If \code{multmed} is \code{FALSE}, the representation of Tchetgen Tchetgen and Shpitser (2012) is used, which involves mediator densities. In this case, the mediator must be a binary scalar. Default of \code{multimed} is \code{TRUE}.}
+\item{multmed}{If set to \code{TRUE}, a representation of direct and indirect effects that avoids conditional mediator densities/probabilities is used, see Farbmacher, Huber, Langen, and Spindler (2022). This method can incorporate multiple and/or continuous mediators. If \code{multmed} is \code{FALSE}, the representation of Tchetgen Tchetgen and Shpitser (2012) is used, which involves mediator densities. In this case, the mediator must be a binary scalar. Default of \code{multimed} is \code{TRUE}.}
 
 \item{fewsplits}{If set to \code{TRUE}, the same training data are used for estimating nested models of nuisance parameters, i.e. \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of nested models \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. This parameter is only relevant if \code{multmed} is \code{TRUE}. Default of \code{fewsplits} is \code{FALSE}.}
 
@@ -76,7 +76,7 @@ output$ntrimmed}
 \references{
 Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 
-Farbmacher, H., Huber, M., Laffers, L., Langen, H., and Spindler, M. (2019): "Causal mediation analysis with double machine learning", working paper, University of Fribourg.
+Farbmacher, H., Huber, M., Laffers, L., Langen, H., and Spindler, M. (2022): "Causal mediation analysis with double machine learning", The Econometrics Journal, 25, 277-300.
 
 Tchetgen Tchetgen, E. J., and Shpitser, I. (2012): "Semiparametric theory for causal mediation analysis: efficiency bounds, multiple robustness, and sensitivity analysis", The Annals of Statistics, 40, 1816-1845.
 

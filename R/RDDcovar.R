@@ -42,8 +42,8 @@ RDDcovar=function(y,z,x, boot=1999, bw0=NULL, bw1=NULL, regtype="ll", bwz=NULL){
   if (is.null(bw1)==0) regbw1 <- bw1
   if (is.null(bwz)==1) regbw <- npregbw(ydat=y, xdat=z, bwmethod="cv.ls", ckertype="epanechnikov", regtype="lc")$bw
   if (is.null(bwz)==0) regbw <- bwz
-  est=rdd.x.est(y=y,z=z,x=x, bw0=bw0, bw1=bw1, regtype=regtype, bwz= bwz)
-  se=sqrt(var(rdd.x.boot(y=y,z=z,x=x, bw0=bw0, bw1=bw1, regtype=regtype, bwz=bwz, boot=boot)))
+  est=rdd.x.est(y=y,z=z,x=x, bw0=regbw0, bw1=regbw1, regtype=regtype, bwz= regbw)
+  se=sqrt(var(rdd.x.boot(y=y,z=z,x=x, bw0=regbw0, bw1=regbw1, regtype=regtype, bwz=regbw, boot=boot)))
   pvalue=2*pnorm(-abs(est/se))
   list(effect=est, se=se, pvalue=pvalue, bw0=bw0, bw1=bw1, bwz=bwz)
 }

@@ -5,7 +5,7 @@
 #' @param x Covariates to be controlled for. Should not contain missing values.
 #' @param MLmethod Machine learning method for estimating nuisance parameters using the \code{SuperLearner} package. Must be one of \code{"lasso"} (default), \code{"randomforest"}, \code{"xgboost"}, \code{"svm"}, \code{"ensemble"}, or \code{"parametric"}.
 #' @param est Estimation method. Must be one of \code{"dr"} (default) for doubly robust, \code{"ipw"} for inverse probability weighting (not doubly robust!), or \code{"reg"} for regression (not doubly robust!).
-#' @param trim Trimming threshold (in percentage) for discarding observations with propensity scores too close to one. Default is 0.05, implying that treatment propensity scores larger than 1-0.05=0.95 (such that the probability to be not treated is below 0.05) are trimmed.
+#' @param trim Trimming threshold (in percent) for discarding observations with propensity scores too close to one. Default is 0.05, implying that treatment propensity scores larger than 1-0.05=0.95 (such that the probability to be not treated is below 0.05) are trimmed.
 #' @param cluster Optional clustering variable for calculating cluster-robust standard errors.
 #' @param k Number of folds in k-fold cross-fitting. Default is 3.
 #' @details This function estimates the Average Treatment Effect on the Treated (ATET) under conditional independence, assuming that confounders jointly affecting the treatment and the outcome can be controlled for by observed covariates. Estimation is based on the (doubly robust) efficient score functions for potential outcomes in combination with double machine learning with cross-fitting, see Chernozhukov et al (2018). To this end, one part of the data is used for estimating the model parameters of the treatment and outcome equations based machine learning. The other part of the data is used for predicting the efficient score functions. The roles of the data parts are swapped (using k-fold cross-fitting) and the ATET is estimated based on averaging the predicted efficient score functions in the total sample. Besides double machine learning, the function also provides inverse probability weighting and regression adjustment methods (which are, however, not doubly robust).
@@ -48,7 +48,7 @@ ATETDML<-function(y, d, x, MLmethod="lasso", est="dr",  trim=0.05, cluster=NULL,
   param=c();
   for (i in 1:k){                                                         # start of cross-fitting loop
     tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
-    trsample=idx[-tesample]                                                                # cross-fitting loop
+    trsample=idx[!(idx %in% tesample)]                                    # cross-fitting loop
     ytr=y[trsample]; dtr=d[trsample] 
     controlstr=data.frame(1,controls)[trsample,]; 
     mud0=MLfunct(y=ytr, x=controlstr, d1=1*(dtr==0), MLmethod=MLmethod, ybin=ybin) # outcome model under non-treatment 

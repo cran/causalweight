@@ -34,7 +34,7 @@
 #' testmedident(y=y, d=d, m=m, x=x, z1=z1, z2=z2)$pval
 #' }
 #' @importFrom SuperLearner SuperLearner
-#' @import sandwich
+#' @import sandwich 
 #' @export
 testmedident=function(y, d, m=NULL, x, w=NULL, z1, z2=NULL, testmediator=TRUE, seed = 123, MLmethod ="lasso", k = 3, zeta_sigma = min(0.5,500/length(y))){
   zeta=rnorm(length(y),0,sd = zeta_sigma) # sample from a normal distribution to avoid degenerate distribution of test statistic under the null

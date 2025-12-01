@@ -40,7 +40,7 @@ treatselDML(
 
 \item{MLmethod}{Machine learning method for estimating the nuisance parameters based on the \code{SuperLearner} package. Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.}
 
-\item{k}{Number of folds in k-fold cross-fitting. Default is 3.}
+\item{k}{Number of folds in k-fold cross-fitting, which must not be smaller than 3. Default is 3.}
 
 \item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
 }
@@ -91,7 +91,7 @@ cat("ATE: ",round(c(output$effect),3),", standard error: ",
 output$ntrimmed}
 }
 \references{
-Bia, M., Huber, M., Laffers, L. (2020): "Double machine learning for sample selection models", working paper, University of Fribourg.
+Bia, M., Huber, M., Laffers, L. (2024): "Double machine learning for sample selection models", Journal of Business & Economic Statistics, 42, 958-969.
 
 Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 

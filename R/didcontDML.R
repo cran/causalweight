@@ -10,7 +10,7 @@
 #' @param controls Covariates and/or previous treatment history to be controlled for. Should not contain missing values.
 #' @param MLmethod Machine learning method for estimating nuisance parameters using the \code{SuperLearner} package. Must be one of \code{"lasso"} (default), \code{"randomforest"}, \code{"xgboost"}, \code{"svm"}, \code{"ensemble"}, or \code{"parametric"}.
 #' @param psmethod Method for computing generalized propensity scores. Set to 1 for estimating conditional treatment densities using the treatment as dependent variable, or 2 for using the treatment kernel weights as dependent variable. Default is 1.
-#' @param trim Trimming threshold (in percentage) for discarding observations with too much influence within any subgroup defined by the treatment group and time. Default is 0.1.
+#' @param trim Trimming threshold (in percent) for discarding observations with too much influence within any subgroup defined by the treatment group and time. Default is 0.1.
 #' @param lognorm Logical indicating if log-normal transformation should be applied when estimating conditional treatment densities using the treatment as dependent variable. Default is FALSE.
 #' @param bw Bandwidth for kernel density estimation. Default is NULL, implying that the bandwidth is calculated based on the rule-of-thumb.
 #' @param bwfactor Factor by which the bandwidth is multiplied. Default is 0.7 (undersmoothing).
@@ -70,7 +70,7 @@ didcontDML=function(y, d, t, dtreat, dcontrol, t0=0, t1=1, controls, MLmethod="l
   param=c();
   for (i in 1:k){                                                         # start of cross-fitting loop
     tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
-    trsample=idx[-tesample]                                                                # cross-fitting loop
+    trsample=idx[!(idx %in% tesample)]                                    # cross-fitting loop
     dcontrols=data.frame(d,controls); controls1=data.frame(1,controls)
     mut1=MLfunct(y=y[trsample], x=dcontrols[trsample,], d1=1*(t[trsample]==t1), MLmethod=MLmethod, ybin=ybin) # outcome model in post-treatment period
     mut0=MLfunct(y=y[trsample], x=dcontrols[trsample,], d1=1*(t[trsample]==t0), MLmethod=MLmethod, ybin=ybin) # outcome model in pre-treatment period

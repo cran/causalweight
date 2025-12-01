@@ -6,7 +6,7 @@
 #' @param x Covariates to be controlled for. Should not contain missing values.
 #' @param MLmethod Machine learning method for estimating nuisance parameters using the \code{SuperLearner} package. Must be one of \code{"lasso"} (default), \code{"randomforest"}, \code{"xgboost"}, \code{"svm"}, \code{"ensemble"}, or \code{"parametric"}.
 #' @param est Estimation method. Must be one of \code{"dr"} (default) for doubly robust, \code{"ipw"} for inverse probability weighting (not doubly robust!), or \code{"reg"} for regression (not doubly robust!).
-#' @param trim Trimming threshold (in percentage) for discarding observations with too small propensity scores within any subgroup defined by the treatment group and time. Default is 0.05.
+#' @param trim Trimming threshold (in percent) for discarding observations with too small propensity scores within any subgroup defined by the treatment group and time. Default is 0.05.
 #' @param cluster Optional clustering variable for calculating cluster-robust standard errors.
 #' @param k Number of folds in k-fold cross-fitting. Default is 3.
 #' @details This function estimates the Average Treatment Effect on the Treated (ATET) in the post-treatment period based on Difference-in-Differences in repeated cross-sections when controlling for confounders in a data-adaptive manner using double machine learning. The function supports different machine learning methods to estimate nuisance parameters (conditional mean outcomes and propensity scores) as well as cross-fitting to mitigate overfitting. Besides double machine learning, the function also provides inverse probability weighting and regression adjustment methods (which are, however, not doubly robust).
@@ -46,7 +46,7 @@ didDML<-function(y, d, t, x, MLmethod="lasso", est="dr",  trim=0.05, cluster=NUL
   param=c();
   for (i in 1:k){                                                         # start of cross-fitting loop
     tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
-    trsample=idx[-tesample]                                                                # cross-fitting loop
+    trsample=idx[!(idx %in% tesample)]                                    # cross-fitting loop
     ytr=y[trsample]; dtr=d[trsample]; ttr=t[trsample]
     controlstr=data.frame(1,controls)[trsample,];
     mud0t1=MLfunct(y=ytr, x=controlstr, d1=1*(dtr==0 & ttr==1), MLmethod=MLmethod, ybin=ybin) # outcome model under non-treatment in post-treatment period

@@ -41,7 +41,7 @@ didcontDMLpanel(
 
 \item{psmethod}{Method for computing generalized propensity scores. Set to 1 for estimating conditional treatment densities using the treatment as dependent variable, or 2 for using the treatment kernel weights as dependent variable. Default is 1.}
 
-\item{trim}{Trimming threshold (in percentage) for discarding observations with too much influence within any subgroup defined by the treatment group and time. Default is 0.1.}
+\item{trim}{Trimming threshold (in percent) for discarding observations with too much influence within any subgroup defined by the treatment group and time. Default is 0.1.}
 
 \item{lognorm}{Logical indicating if log-normal transformation should be applied when estimating conditional treatment densities using the treatment as dependent variable. Default is FALSE.}
 
