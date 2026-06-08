@@ -11,7 +11,6 @@ medDML(
   x,
   k = 3,
   trim = 0.05,
-  order = 1,
   multmed = TRUE,
   fewsplits = FALSE,
   normalized = TRUE,
@@ -30,8 +29,6 @@ medDML(
 \item{k}{Number of folds in k-fold cross-fitting if \code{multmed} is \code{FALSE}. \code{k}-1 folds are used for estimating the model parameters of the treatment, mediator, and outcome equations and one fold is used for predicting the efficient score functions. The roles of the folds are swapped. Default for \code{k} is 3. If \code{multmed} is \code{TRUE}, then 3-fold cross-valdiation is used, irrespective of the number provided in \code{k} (i.e. \code{k} is ignored if \code{multmed} is \code{TRUE}).}
 
 \item{trim}{Trimming rule for discarding observations with extreme conditional treatment or mediator probabilities (or products thereof). Observations with (products of) conditional probabilities that are smaller than \code{trim} in any denominator of the potential outcomes are dropped. Default is 0.05.}
-
-\item{order}{If set to an integer larger than 1, then polynomials of that order and interactions (using the power series) rather than the original control variables are used in the estimation of any conditional probability or conditional mean outcome. Polynomials/interactions are created using the \code{Generate.Powers} command of the \code{LARF} package.}
 
 \item{multmed}{If set to \code{TRUE}, a representation of direct and indirect effects that avoids conditional mediator densities/probabilities is used, see Farbmacher, Huber, Langen, and Spindler (2022). This method can incorporate multiple and/or continuous mediators. If \code{multmed} is \code{FALSE}, the representation of Tchetgen Tchetgen and Shpitser (2012) is used, which involves mediator densities. In this case, the mediator must be a binary scalar. Default of \code{multimed} is \code{TRUE}.}
 

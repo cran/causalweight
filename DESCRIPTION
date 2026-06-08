@@ -1,7 +1,7 @@
 Package: causalweight
 Title: Estimation Methods for Causal Inference Based on Inverse
         Probability Weighting and Doubly Robust Estimation
-Version: 1.1.4
+Version: 1.1.5
 Authors@R: 
     c(person(given = "Hugo",
              family = "Bodory",
@@ -19,18 +19,18 @@ Authors@R:
              email = "jannis.kueck@uni-hamburg.de",
              comment = c(ORCID = "0000-0003-4367-0285")))           
 Maintainer: Hugo Bodory <hugo.bodory@unisg.ch>
-Description: Various estimators of causal effects based on inverse probability weighting, doubly robust estimation, and double machine learning. Specifically, the package includes methods for estimating average treatment effects, direct and indirect effects in causal mediation analysis, and dynamic treatment effects. The models refer to studies of Froelich (2007) <doi:10.1016/j.jeconom.2006.06.004>, Huber (2012) <doi:10.3102/1076998611411917>, Huber (2014) <doi:10.1080/07474938.2013.806197>, Huber (2014) <doi:10.1002/jae.2341>, Froelich and Huber (2017) <doi:10.1111/rssb.12232>, Hsu, Huber, Lee, and Lettry (2020)  <doi:10.1002/jae.2765>, and others.
+Description: Various estimators of causal effects based on inverse probability weighting, doubly robust estimation, and double machine learning. Specifically, the package includes methods for estimating average treatment effects, direct and indirect effects in causal mediation analysis, and dynamic treatment effects based on different identification strategies (unconfoundedness, instruments, difference-in-differences, regression discontinuity designs). 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Depends: R (>= 3.5.0), ranger
-Imports: mvtnorm, np, LARF, hdm, SuperLearner, glmnet, xgboost, e1071,
+Imports: mvtnorm, np, hdm, SuperLearner, glmnet, xgboost, e1071,
         fastDummies, grf, checkmate, sandwich
 NeedsCompilation: no
-Packaged: 2025-12-01 15:43:23 UTC; HuberMar
+Packaged: 2026-06-08 05:18:13 UTC; HuberMar
 Author: Hugo Bodory [aut, cre] (ORCID: <https://orcid.org/0000-0002-3645-1204>),
   Martin Huber [aut] (ORCID: <https://orcid.org/0000-0002-8590-9402>),
   Jannis Kueck [aut] (ORCID: <https://orcid.org/0000-0003-4367-0285>)
 Repository: CRAN
-Date/Publication: 2025-12-01 16:00:09 UTC
+Date/Publication: 2026-06-08 06:40:08 UTC

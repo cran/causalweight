@@ -34,7 +34,6 @@
 #' round(output$results,3)}
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm quantile predict
 #' @import mvtnorm
-#' @importFrom LARF Generate.Powers
 #' @importFrom hdm rlasso rlassologit
 #' @export
 attrlateweight<-function(y1,y2,s1,s2,d,z,x0,x1, weightmax=0.1,  boot=1999, cluster=NULL){

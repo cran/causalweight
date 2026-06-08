@@ -115,7 +115,7 @@ output$ntrimmed
 # The true effect of the treatment sequence is 1.5}
 }
 \references{
-Bodory, H., Huber, M., Laffers, L. (2020): "Evaluating (weighted) dynamic treatment effects by double machine learning", working paper, arXiv preprint arXiv:2012.00370.
+Bodory, H., Huber, M., Laffers, L. (2022): "Evaluating (weighted) dynamic treatment effects by double machine learning", Econometrics Journal, 25, 628-648.
 
 Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 

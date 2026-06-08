@@ -27,7 +27,7 @@
 #' @return \code{psd2treat}: P-score estimates for second treatment in treatment sequence.
 #' @return \code{psd1control}: P-score estimates for first treatment in control sequence.
 #' @return \code{psd2control}: P-score estimates for second treatment in control sequence.
-#' @references Bodory, H., Huber, M., Laffers, L. (2020): "Evaluating (weighted) dynamic treatment effects by double machine learning", working paper, arXiv preprint arXiv:2012.00370.
+#' @references Bodory, H., Huber, M., Laffers, L. (2022): "Evaluating (weighted) dynamic treatment effects by double machine learning", Econometrics Journal, 25, 628-648.
 #' @references Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 #' @references van der Laan, M., Polley, E., Hubbard, A. (2007): "Super Learner", Statistical Applications in Genetics and Molecular Biology, 6.
 #' @examples # A little example with simulated data (2000 observations)

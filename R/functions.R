@@ -954,9 +954,8 @@ bootstrap.did<-function(y,d,t, x=NULL,boot=1999,trim=0.05, cluster=NULL){
   bsamples
 }
 
-hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE, MLmethod="lasso"){
+hdmed=function(y,d,m,x,k=3, trim=0.05, normalized=TRUE, MLmethod="lasso"){
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
-  if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
   stepsize=ceiling((1/k)*length(d))
   set.seed(1); idx= sample(length(d), replace=FALSE)
   score=c(); selall=c()
@@ -1098,12 +1097,9 @@ hdmed=function(y,d,m,x,k=3, trim=0.05, order=1, normalized=TRUE, MLmethod="lasso
 }
 
 # function for mediation with high dimensional covariates based on Bayes rule
-hdmedalt=function(y,d,m,x, trim=0.05, order=1, fewsplits=FALSE, normalized=TRUE, MLmethod="lasso"){
+hdmedalt=function(y,d,m,x, trim=0.05, fewsplits=FALSE, normalized=TRUE, MLmethod="lasso"){
   ybin=1*(length(unique(y))==2 & min(y)==0 & max(y)==1)
-  #generate higher order terms for lasso
   xm=cbind(x,m)
-  if (order>1) {x=Generate.Powers(cbind(x),lambda=order); x=as.matrix(x,nrow(x),ncol(x))}
-  if (order>1) xm=Generate.Powers(xm,lambda=order); xm=as.matrix(xm,nrow(xm),ncol(xm))
   stepsize=ceiling((1/3)*length(d))
   nobs = min(3*stepsize,length(d)); set.seed(1); idx = sample(nobs);
   sample1 = idx[1:stepsize]; sample2 = idx[(stepsize+1):(2*stepsize)];

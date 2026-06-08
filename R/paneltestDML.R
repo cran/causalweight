@@ -22,7 +22,7 @@
 #' @import SuperLearner
 #' @import sandwich
 #' @export
-#' @references Huber, M., and Oeß, E.-M. (2024): "A joint test of unconfoundedness and common trends", arXiv preprint 2404.16961.
+#' @references Huber, M., and Oeß, E.-M. (2026): "A joint test of unconfoundedness and common trends", Journal of Applied Econometrics.
 #' @examples
 #' \dontrun{
 #' n=1000

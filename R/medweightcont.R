@@ -19,7 +19,7 @@
 #' The first column provides the total effect, namely the average treatment effect (ATE) if \code{ATET=FALSE} or the average treatment effect on the treated (ATET), i.e. those with D=\code{d1}, if \code{ATET=TRUE}.
 #' The second and third columns provide the direct effects under treatment and control, respectively ("dir.treat", "dir.control"). The fourth and fifth columns provide the indirect effects under treatment and control, respectively ("indir.treat", "indir.control").
 #' @return \code{ntrimmed}: number of discarded (trimmed) observations due to extreme propensity score values.
-#' @references Hsu, Y.-C., Huber, M., Lee, Y.-Y., Lettry, L. (2020): "Direct and indirect effects of continuous treatments based on generalized propensity score weighting", Journal of Applied Econometrics, forthcoming.
+#' @references Hsu, Y.-C., Huber, M., Lee, Y.-Y., Lettry, L. (2020): "Direct and indirect effects of continuous treatments based on generalized propensity score weighting", Journal of Applied Econometrics, 35, 814-840.
 #' @examples # A little example with simulated data (10000 observations)
 #' \dontrun{
 #' n=10000

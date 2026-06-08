@@ -52,5 +52,5 @@ paneltestDML(y1=y1, y0=y0, d=d, x=x)$pval
 }
 }
 \references{
-Huber, M., and Oeß, E.-M. (2024): "A joint test of unconfoundedness and common trends", arXiv preprint 2404.16961.
+Huber, M., and Oeß, E.-M. (2026): "A joint test of unconfoundedness and common trends", Journal of Applied Econometrics.
 }
