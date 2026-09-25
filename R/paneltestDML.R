@@ -19,7 +19,6 @@
 #' \item{seATETselobs}{Standard error of the ATET based on the selection on observables/unconfoundedness assumption.}
 #' \item{ATETdid}{ATET based on difference-in-differences invoking the conditional common trends assumption.}
 #' \item{seATETdid}{Standard error of the ATET based on difference-in-differences invoking the conditional common trends assumption.}
-#' @import SuperLearner
 #' @import sandwich
 #' @export
 #' @references Huber, M., and Oeß, E.-M. (2026): "A joint test of unconfoundedness and common trends", Journal of Applied Econometrics.

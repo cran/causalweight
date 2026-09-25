@@ -14,7 +14,8 @@ medDML(
   multmed = TRUE,
   fewsplits = FALSE,
   normalized = TRUE,
-  MLmethod = "lasso"
+  MLmethod = "lasso",
+  debiasfirst = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ medDML(
 \item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
 
 \item{MLmethod}{Machine learning method for estimating the nuisance parameters based on the \code{hdm} package (for lasso) or the \code{SuperLearner} package (for any other machine learner). Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.}
+
+\item{debiasfirst}{If set to \code{TRUE}, the nested conditional mean \code{E[E[Y|D=d,M,X]|D=1-d,X]} (for \code{d} being 1 or 0) is estimated in debiased form, using reweighted residuals of \code{E[Y|D=d,M,X]}, following Qi and Zhang (2026): "Quadratic robust methods for causal mediation analysis". This is only relevant if \code{multmed} is \code{TRUE} (when nested conditional means are estimated) and otherwise ignored. Default is \code{TRUE}.}
 }
 \value{
 A medDML object contains two components, \code{results} and \code{ntrimmed}:
@@ -74,6 +77,8 @@ output$ntrimmed}
 Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 
 Farbmacher, H., Huber, M., Laffers, L., Langen, H., and Spindler, M. (2022): "Causal mediation analysis with double machine learning", The Econometrics Journal, 25, 277-300.
+
+Qi, Z., and Zhang, Y. (2026): "Quadratic robust methods for causal mediation analysis", arXiv preprint 2601.22592.
 
 Tchetgen Tchetgen, E. J., and Shpitser, I. (2012): "Semiparametric theory for causal mediation analysis: efficiency bounds, multiple robustness, and sensitivity analysis", The Annals of Statistics, 40, 1816-1845.
 

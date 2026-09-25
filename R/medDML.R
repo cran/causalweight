@@ -10,6 +10,7 @@
 #' @param fewsplits If set to \code{TRUE}, the same training data are used for estimating nested models of nuisance parameters, i.e. \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of nested models \code{E[Y|D=d,M,X]} and \code{E[E[Y|D=d,M,X]|D=1-d,X]}. This parameter is only relevant if \code{multmed} is \code{TRUE}. Default of \code{fewsplits} is \code{FALSE}.
 #' @param normalized If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.
 #' @param MLmethod Machine learning method for estimating the nuisance parameters based on the \code{hdm} package (for lasso) or the \code{SuperLearner} package (for any other machine learner). Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.
+#' @param debiasfirst If set to \code{TRUE}, the nested conditional mean \code{E[E[Y|D=d,M,X]|D=1-d,X]} (for \code{d} being 1 or 0) is estimated in debiased form, using reweighted residuals of \code{E[Y|D=d,M,X]}, following Qi and Zhang (2026): "Quadratic robust methods for causal mediation analysis". This is only relevant if \code{multmed} is \code{TRUE} (when nested conditional means are estimated) and otherwise ignored. Default is \code{TRUE}.
 #' @details Estimation of causal mechanisms (natural direct and indirect effects) of a treatment under selection on observables, assuming that all confounders of the binary treatment and the mediator, the treatment and the outcome, or the mediator and the outcome are observed and not affected by the treatment. Estimation is based on the (doubly robust) efficient score functions for potential outcomes, see Tchetgen Tchetgen and Shpitser (2012) and Farbmacher, Huber, Langen, and Spindler (2019),
 #' as well as on double machine learning with cross-fitting, see Chernozhukov et al (2018). To this end, one part of the data is used for estimating the model parameters of the treatment, mediator, and outcome equations based on post-lasso regression, using the \code{rlasso} and \code{rlassologit} functions (for conditional means and probabilities, respectively) of the \code{hdm} package with default settings. The other part of the data is used for predicting the efficient score functions. The roles of the data parts are swapped and the direct and indirect effects are estimated based on averaging the predicted efficient score functions in the total sample.
 #' Standard errors are based on asymptotic approximations using the estimated variance of the (estimated) efficient score functions.
@@ -19,6 +20,7 @@
 #' @return \code{ntrimmed}: number of discarded (trimmed) observations due to extreme conditional probabilities.
 #' @references Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 #' @references Farbmacher, H., Huber, M., Laffers, L., Langen, H., and Spindler, M. (2022): "Causal mediation analysis with double machine learning", The Econometrics Journal, 25, 277-300.
+#' @references Qi, Z., and Zhang, Y. (2026): "Quadratic robust methods for causal mediation analysis", arXiv preprint 2601.22592.
 #' @references Tchetgen Tchetgen, E. J., and Shpitser, I. (2012): "Semiparametric theory for causal mediation analysis: efficiency bounds, multiple robustness, and sensitivity analysis", The Annals of Statistics, 40, 1816-1845.
 #' @references Tibshirani, R. (1996): "Regression shrinkage and selection via the lasso", Journal of the Royal Statistical Society: Series B, 58, 267-288.
 #' @examples # A little example with simulated data (10000 observations)
@@ -36,13 +38,13 @@
 #' round(output$results,3)
 #' output$ntrimmed}
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm dnorm quantile
-#' @import hdm SuperLearner glmnet ranger xgboost e1071
+#' @importFrom kernlab ksvm
+#' @import hdm glmnet ranger xgboost
 #' @export
 
-
 # function for estimation, se, and p-values
-medDML=function(y,d,m,x,k=3, trim=0.05, multmed=TRUE, fewsplits=FALSE, normalized=TRUE, MLmethod="lasso"){
-  if (multmed!=0) temp=hdmedalt(y=y,d=d,m=m,x=x, trim=trim, fewsplits=fewsplits, normalized=normalized, MLmethod=MLmethod)
+medDML=function(y,d,m,x,k=3, trim=0.05, multmed=TRUE, fewsplits=FALSE, normalized=TRUE, MLmethod="lasso", debiasfirst=TRUE){
+  if (multmed!=0) temp=hdmedalt(y=y,d=d,m=m,x=x, trim=trim, fewsplits=fewsplits, normalized=normalized, MLmethod=MLmethod, debiasfirst=debiasfirst)
   if (multmed==0) temp=hdmed(y=y,d=d,m=m,x=x,k=k,trim=trim, normalized=normalized, MLmethod=MLmethod)
   eff=temp[1:6]
   se=sqrt( (temp[7:12])/temp[13])

@@ -35,7 +35,6 @@
 #' output$ntrimmed
 #' }
 #' @importFrom stats rnorm lm predict sd dnorm
-#' @importFrom SuperLearner SuperLearner
 #' @import sandwich
 #' @export
 

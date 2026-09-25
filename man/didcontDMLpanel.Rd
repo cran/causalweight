@@ -39,11 +39,11 @@ didcontDMLpanel(
 
 \item{MLmethod}{Machine learning method for estimating nuisance parameters using the \code{SuperLearner} package. Must be one of \code{"lasso"} (default), \code{"randomforest"}, \code{"xgboost"}, \code{"svm"}, \code{"ensemble"}, or \code{"parametric"}.}
 
-\item{psmethod}{Method for computing generalized propensity scores. Set to 1 for estimating conditional treatment densities using the treatment as dependent variable, or 2 for using the treatment kernel weights as dependent variable. Default is 1.}
+\item{psmethod}{Method for computing generalized propensity scores. Set to 1 for estimating conditional treatment densities using the treatment as dependent variable (imposing the parametric assumption of a Gaussian conditional treatment distribution), or 2 for using the treatment kernel weights as dependent variable (nonparametric). Default is 1.}
 
 \item{trim}{Trimming threshold (in percent) for discarding observations with too much influence within any subgroup defined by the treatment group and time. Default is 0.1.}
 
-\item{lognorm}{Logical indicating if log-normal transformation should be applied when estimating conditional treatment densities using the treatment as dependent variable. Default is FALSE.}
+\item{lognorm}{Logical indicating if log-normal transformation should be applied when estimating conditional treatment densities using the treatment as dependent variable (parametric). Default is FALSE.}
 
 \item{bw}{Bandwidth for kernel density estimation. Default is NULL, implying that the bandwidth is calculated based on the rule-of-thumb.}
 

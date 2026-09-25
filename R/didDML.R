@@ -35,7 +35,6 @@
 #' cat("ATET: ", round(results$ATET, 3), ", Standard error: ", round(results$se, 3))
 #' }
 #' @importFrom stats rnorm lm predict sd dnorm
-#' @importFrom SuperLearner SuperLearner
 #' @import sandwich
 #' @export
 didDML<-function(y, d, t, x, MLmethod="lasso", est="dr",  trim=0.05, cluster=NULL, k=3){

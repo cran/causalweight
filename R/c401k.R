@@ -1,0 +1,41 @@
+#' 401(k) Pension Plan Participation and Net Financial Assets
+#'
+#' Cross-sectional data with 9,275 observations including 11 variables on
+#' eligibility for and participation in 401(k) pension plans, along with
+#' income and demographic information.
+#'
+#' An exemplary dataset to illustrate the usage of instrumental variable methods. 
+#' The data include both a binary outcome 
+#' (\code{pira}) and a continuous outcome (\code{nettfa}). The treatment is
+#' participation in 401(k), \code{p401k}. Eligibility for 401(k),
+#' \code{e401k}, is used as an instrument for \code{p401k}.
+#'
+#' @format A data frame with 9275 rows and 11 variables:
+#' \describe{
+#'   \item{pira}{participation in IRA, participation = 1}
+#'   \item{nettfa}{net family financial assets in $1000}
+#'   \item{p401k}{participation in 401(k), participation = 1}
+#'   \item{e401k}{eligibility for 401(k), eligible = 1}
+#'   \item{inc}{income}
+#'   \item{incsq}{income square}
+#'   \item{marr}{marital status, married = 1}
+#'   \item{male}{sex, male = 1}
+#'   \item{age}{age}
+#'   \item{agesq}{age square}
+#'   \item{fsize}{family size}
+#' }
+#'
+#' @source The data were originally distributed as \code{c401k} in the
+#'   \pkg{LARF} package (which has since been archived and is no longer
+#'   maintained on CRAN) and are included here for continued availability.
+#'   They derive from Wooldridge's data sets (Wooldridge 2010), originally
+#'   entitled "401ksubs.dta" in Stata format, available at
+#'   \url{https://www.stata.com/texts/eacsap/}.
+#'
+#' @references Wooldridge, Jeffrey M. (2010). \emph{Econometric Analysis of
+#'   Cross Section and Panel Data}. 2nd Edition. MIT Press.
+#'
+#' @docType data
+#' @keywords datasets
+#' @usage data(c401k)
+"c401k"

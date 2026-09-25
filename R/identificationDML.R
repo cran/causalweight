@@ -99,7 +99,8 @@
 #' output3$pval
 #' }
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm dnorm quantile coef fitted gaussian median qnorm
-#' @import SuperLearner glmnet ranger xgboost e1071 mvtnorm grf checkmate
+#' @importFrom kernlab ksvm
+#' @import glmnet ranger xgboost mvtnorm grf checkmate
 #' @export
 
 identificationDML = function(y, d, x, z, score = "DR", bootstrap = FALSE, ztreat = 1, zcontrol =0 , seed = 123, MLmethod ="lasso", k = 3,

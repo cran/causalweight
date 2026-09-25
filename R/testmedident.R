@@ -33,7 +33,6 @@
 #' # Run test and report p-value
 #' testmedident(y=y, d=d, m=m, x=x, z1=z1, z2=z2)$pval
 #' }
-#' @importFrom SuperLearner SuperLearner
 #' @import sandwich 
 #' @export
 testmedident=function(y, d, m=NULL, x, w=NULL, z1, z2=NULL, testmediator=TRUE, seed = 123, MLmethod ="lasso", k = 3, zeta_sigma = min(0.5,500/length(y))){

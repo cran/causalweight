@@ -1,5 +1,5 @@
 #' Dynamic treatment effect evaluation with double machine learning
-#' @description Dynamic treatment effect estimation for assessing the average effects of sequences of treatments (consisting of two sequential treatments). Combines estimation based on (doubly robust) efficient score functions with double machine learning to control for confounders in a data-driven way.
+#' @description Dynamic treatment effect estimation for assessing the average effects of sequences of treatments (consisting of two sequential treatments). Combines estimation based on (doubly robust) efficient score functions with double machine learning to control for confounders in a data-driven way, as considered in Bodory, Huber, and Laffers (2022): "Evaluating (weighted) dynamic treatment effects by double machine learning".
 #' @param y2 Dependent variable in the second period (=outcome period), must not contain missings.
 #' @param d1 Treatment in the first period, must be discrete, must not contain missings.
 #' @param d2 Treatment in the second period, must be discrete, must not contain missings.
@@ -14,6 +14,7 @@
 #' @param MLmethod Machine learning method for estimating the nuisance parameters based on the \code{SuperLearner} package. Must be either  \code{"lasso"} (default) for lasso estimation,  \code{"randomforest"} for random forests, \code{"xgboost"} for xg boosting,  \code{"svm"} for support vector machines, \code{"ensemble"} for using an ensemble algorithm based on all previously mentioned machine learners, or \code{"parametric"} for linear or logit regression.
 #' @param fewsplits If set to \code{TRUE}, the same training data are used for estimating a nested model of conditional mean outcomes, namely \code{E[E[y2|d1,d2,x0,x1]|d1,x0]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of the nested model. Default of \code{fewsplits} is \code{FALSE}.
 #' @param normalized If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.
+#' @param debiasfirst If set to \code{TRUE}, then the first step conditional mean outcome \code{E[y2|d1,d2,x0,x1]} is debiased before estimating the nested conditional mean outcome \code{E[E[y2|d1,d2,x0,x1]|d1,x0]}, following Bradic, Ji, and Zhang (2024): "High-dimensional inference for dynamic treatment effects". Default is \code{TRUE}.
 #' @details Estimation of the causal effects of sequences of two treatments under sequential conditional independence, assuming that all confounders of the treatment in either period and the outcome of interest are observed. Estimation is based on the (doubly robust) efficient score functions for potential outcomes, see e.g. Bodory, Huber, and Laffers (2020), in combination with double machine learning with cross-fitting, see Chernozhukov et al (2018). To this end, one part of the data is used for estimating the model parameters of the treatment and outcome equations based machine learning. The other part of the data is used for predicting the efficient score functions. The roles of the data parts are swapped (using 3-fold cross-fitting) and the average dynamic treatment effect is estimated based on averaging the predicted efficient score functions in the total sample.
 #' Standard errors are based on asymptotic approximations using the estimated variance of the (estimated) efficient score functions.
 #' @return A \code{dyntreatDML} object contains ten components, \code{effect}, \code{se}, \code{pval}, \code{ntrimmed}, \code{meantreat}, \code{meancontrol}, \code{psd1treat}, \code{psd2treat}, \code{psd1control}, and \code{psd2control} :
@@ -28,6 +29,7 @@
 #' @return \code{psd1control}: P-score estimates for first treatment in control sequence.
 #' @return \code{psd2control}: P-score estimates for second treatment in control sequence.
 #' @references Bodory, H., Huber, M., Laffers, L. (2022): "Evaluating (weighted) dynamic treatment effects by double machine learning", Econometrics Journal, 25, 628-648.
+#' @references Bradic, J., Ji, W., Zhang, Y. (2024): "High-dimensional inference for dynamic treatment effects", The Annals of Statistics, 52, 415-440.
 #' @references Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 #' @references van der Laan, M., Polley, E., Hubbard, A. (2007): "Super Learner", Statistical Applications in Genetics and Molecular Biology, 6.
 #' @examples # A little example with simulated data (2000 observations)
@@ -64,16 +66,17 @@
 #' # The true effect of the treatment sequence is 1.5}
 
 #' @importFrom stats binomial fitted.values glm lm pnorm sd rnorm dnorm quantile coef fitted gaussian median
-#' @import SuperLearner glmnet ranger xgboost e1071 mvtnorm
+#' @importFrom kernlab ksvm
+#' @import glmnet ranger xgboost mvtnorm nnls
 #' @export
 
-dyntreatDML=function(y2,d1,d2,x0,x1, s=NULL, d1treat=1, d2treat=1, d1control=0, d2control=0,  trim=0.01, MLmethod="lasso", fewsplits=FALSE, normalized=TRUE){
+dyntreatDML=function(y2,d1,d2,x0,x1, s=NULL, d1treat=1, d2treat=1, d1control=0, d2control=0,  trim=0.01, MLmethod="lasso", fewsplits=FALSE, normalized=TRUE, debiasfirst=TRUE){
   if (length(d1treat)==1) {d1tre=1*(d1==d1treat)} else {d1tre=d1treat}
   if (length(d2treat)==1) {d2tre=1*(d2==d2treat)} else {d2tre=d2treat}
   if (length(d1control)==1) {d1con=1*(d1==d1control)} else {d1con=d1control}
   if (length(d2control)==1) {d2con=1*(d2==d2control)} else {d2con=d2control}
-  scorestreat=hddyntreat(y2=y2,d1=d1tre,d2=d2tre,x0=x0,x1=x1, s=s, trim=trim, MLmethod=MLmethod, fewsplits=fewsplits)
-  scorescontrol=hddyntreat(y2=y2,d1=d1con,d2=d2con,x0=x0,x1=x1, s=s, trim=trim, MLmethod=MLmethod, fewsplits=fewsplits)
+  scorestreat=hddyntreat(y2=y2,d1=d1tre,d2=d2tre,x0=x0,x1=x1, s=s, trim=trim, MLmethod=MLmethod, fewsplits=fewsplits, debiasfirst=debiasfirst)
+  scorescontrol=hddyntreat(y2=y2,d1=d1con,d2=d2con,x0=x0,x1=x1, s=s, trim=trim, MLmethod=MLmethod, fewsplits=fewsplits, debiasfirst=debiasfirst)
   trimmed=1*(scorescontrol[,10]+scorestreat[,10]>0)        #number of trimmed observations
   scorestreat=scorestreat[trimmed==0,]
   scorescontrol=scorescontrol[trimmed==0,]

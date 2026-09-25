@@ -18,7 +18,8 @@ dyntreatDML(
   trim = 0.01,
   MLmethod = "lasso",
   fewsplits = FALSE,
-  normalized = TRUE
+  normalized = TRUE,
+  debiasfirst = TRUE
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ dyntreatDML(
 \item{fewsplits}{If set to \code{TRUE}, the same training data are used for estimating a nested model of conditional mean outcomes, namely \code{E[E[y2|d1,d2,x0,x1]|d1,x0]}. If \code{fewsplits} is \code{FALSE}, the training data are split for the sequential estimation of the nested model. Default of \code{fewsplits} is \code{FALSE}.}
 
 \item{normalized}{If set to \code{TRUE}, then the inverse probability-based weights are normalized such that they add up to 1 within treatment groups. Default is \code{TRUE}.}
+
+\item{debiasfirst}{If set to \code{TRUE}, then the first step conditional mean outcome \code{E[y2|d1,d2,x0,x1]} is debiased before estimating the nested conditional mean outcome \code{E[E[y2|d1,d2,x0,x1]|d1,x0]}, following Bradic, Ji, and Zhang (2024): "High-dimensional inference for dynamic treatment effects". Default is \code{TRUE}.}
 }
 \value{
 A \code{dyntreatDML} object contains ten components, \code{effect}, \code{se}, \code{pval}, \code{ntrimmed}, \code{meantreat}, \code{meancontrol}, \code{psd1treat}, \code{psd2treat}, \code{psd1control}, and \code{psd2control} :
@@ -74,7 +77,7 @@ A \code{dyntreatDML} object contains ten components, \code{effect}, \code{se}, \
 \code{psd2control}: P-score estimates for second treatment in control sequence.
 }
 \description{
-Dynamic treatment effect estimation for assessing the average effects of sequences of treatments (consisting of two sequential treatments). Combines estimation based on (doubly robust) efficient score functions with double machine learning to control for confounders in a data-driven way.
+Dynamic treatment effect estimation for assessing the average effects of sequences of treatments (consisting of two sequential treatments). Combines estimation based on (doubly robust) efficient score functions with double machine learning to control for confounders in a data-driven way, as considered in Bodory, Huber, and Laffers (2022): "Evaluating (weighted) dynamic treatment effects by double machine learning".
 }
 \details{
 Estimation of the causal effects of sequences of two treatments under sequential conditional independence, assuming that all confounders of the treatment in either period and the outcome of interest are observed. Estimation is based on the (doubly robust) efficient score functions for potential outcomes, see e.g. Bodory, Huber, and Laffers (2020), in combination with double machine learning with cross-fitting, see Chernozhukov et al (2018). To this end, one part of the data is used for estimating the model parameters of the treatment and outcome equations based machine learning. The other part of the data is used for predicting the efficient score functions. The roles of the data parts are swapped (using 3-fold cross-fitting) and the average dynamic treatment effect is estimated based on averaging the predicted efficient score functions in the total sample.
@@ -116,6 +119,8 @@ output$ntrimmed
 }
 \references{
 Bodory, H., Huber, M., Laffers, L. (2022): "Evaluating (weighted) dynamic treatment effects by double machine learning", Econometrics Journal, 25, 628-648.
+
+Bradic, J., Ji, W., Zhang, Y. (2024): "High-dimensional inference for dynamic treatment effects", The Annals of Statistics, 52, 415-440.
 
 Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., Robins, J. (2018): "Double/debiased machine learning for treatment and structural parameters", The Econometrics Journal, 21, C1-C68.
 

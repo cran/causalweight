@@ -9,9 +9,9 @@
 #' @param t1 Value indicating the post-treatment outcome period in which the effect is evaluated. Default is 1.
 #' @param controls Covariates and/or previous treatment history to be controlled for. Should not contain missing values.
 #' @param MLmethod Machine learning method for estimating nuisance parameters using the \code{SuperLearner} package. Must be one of \code{"lasso"} (default), \code{"randomforest"}, \code{"xgboost"}, \code{"svm"}, \code{"ensemble"}, or \code{"parametric"}.
-#' @param psmethod Method for computing generalized propensity scores. Set to 1 for estimating conditional treatment densities using the treatment as dependent variable, or 2 for using the treatment kernel weights as dependent variable. Default is 1.
+#' @param psmethod Method for computing generalized propensity scores. Set to 1 for estimating conditional treatment densities using the treatment as dependent variable (imposing the parametric assumption of a Gaussian conditional treatment distribution), or 2 for using the treatment kernel weights as dependent variable (nonparametric). Default is 1.
 #' @param trim Trimming threshold (in percent) for discarding observations with too much influence within any subgroup defined by the treatment group and time. Default is 0.1.
-#' @param lognorm Logical indicating if log-normal transformation should be applied when estimating conditional treatment densities using the treatment as dependent variable. Default is FALSE.
+#' @param lognorm Logical indicating if log-normal transformation should be applied when estimating conditional treatment densities using the treatment as dependent variable (parametric). Default is FALSE.
 #' @param bw Bandwidth for kernel density estimation. Default is NULL, implying that the bandwidth is calculated based on the rule-of-thumb.
 #' @param bwfactor Factor by which the bandwidth is multiplied. Default is 0.7 (undersmoothing).
 #' @param cluster Optional clustering variable for calculating standard errors.
@@ -42,7 +42,6 @@
 #' cat("ATET: ", round(results$ATET, 3), ", Standard error: ", round(results$se, 3))
 #' }
 #' @importFrom stats rnorm lm predict sd dnorm
-#' @importFrom SuperLearner SuperLearner
 #' @import np sandwich
 #' @export
 didcontDML=function(y, d, t, dtreat, dcontrol, t0=0, t1=1, controls, MLmethod="lasso", psmethod=1, trim=0.1, lognorm=FALSE, bw=NULL, bwfactor=0.7, cluster=NULL, k=3) {
@@ -57,7 +56,7 @@ didcontDML=function(y, d, t, dtreat, dcontrol, t0=0, t1=1, controls, MLmethod="l
   dd=d
   if(psmethod!=2 & lognorm==TRUE){    #lognormal transformation when estimating joint densities indirectly
     dd[d==0]=0.00001; dd=log(dd)
-    if (dcontrol==0) d0=0.00001; if (dtreat==0) d1=0.00001
+    if (dcontrol==0) dcontrol=0.00001; if (dtreat==0) dtreat=0.00001
   }
   if(psmethod==2){                   # estimate joint densities directly
     wtreatt1=kernwgtdtreat*(t==t1)
@@ -65,11 +64,11 @@ didcontDML=function(y, d, t, dtreat, dcontrol, t0=0, t1=1, controls, MLmethod="l
     wcontrolt1=kernwgtdcontrol*(t==t1)
     wcontrolt0=kernwgtdcontrol*(t==t0)
   }
-  stepsize=ceiling((1/k)*length(d))                               # sample size in folds
-  set.seed(1); idx= sample(length(d), replace=FALSE)              # shuffle data
+  set.seed(1); idx = sample(length(d), replace=FALSE)   # shuffle data
+  folds = split(idx, cut(seq_along(idx), breaks = k, labels = FALSE))  # generate folds
   param=c();
   for (i in 1:k){                                                         # start of cross-fitting loop
-    tesample=idx[((i-1)*stepsize+1):(min((i)*stepsize,length(d)))]
+    tesample=folds[[i]]
     trsample=idx[!(idx %in% tesample)]                                    # cross-fitting loop
     dcontrols=data.frame(d,controls); controls1=data.frame(1,controls)
     mut1=MLfunct(y=y[trsample], x=dcontrols[trsample,], d1=1*(t[trsample]==t1), MLmethod=MLmethod, ybin=ybin) # outcome model in post-treatment period
